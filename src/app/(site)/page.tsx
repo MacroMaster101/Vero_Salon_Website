@@ -13,6 +13,7 @@ import { ImgSlot } from '@/components/site/img-slot';
 import { ServicesTabs } from '@/components/home/services-tabs';
 import { HomeEffects } from '@/components/home/home-effects';
 import { BottomNav } from '@/components/home/bottom-nav';
+import { WhatsAppFab } from '@/components/home/whatsapp-fab';
 import { minutesToLabel } from '@/lib/format';
 import { ratingLabel, stylistAvatarSrc } from '@/lib/stylist-card';
 import { getSiteContent } from '@/lib/content/get';
@@ -556,6 +557,8 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ d
             </div>
           </div>
         </footer>
+
+        <WhatsAppFab phone={contact.phonePrimary} locale={locale} />
 
         <BottomNav
           signedIn={!!profile}
