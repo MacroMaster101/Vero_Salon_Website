@@ -14,6 +14,11 @@ export async function GET(request: NextRequest) {
     if (error) return NextResponse.redirect(new URL('/login?error=oauth', url.origin));
   }
   const profile = await getProfile();
+  // No session (no/expired code): never honour ?next= for an anonymous visitor.
+  if (!profile) {
+    const login = next ? `/login?next=${encodeURIComponent(next)}` : '/login';
+    return NextResponse.redirect(new URL(login, url.origin));
+  }
   const target = routeForSession(profile?.role ?? null, profile?.stylistId ?? null, false, next);
   return NextResponse.redirect(new URL(target, url.origin));
 }

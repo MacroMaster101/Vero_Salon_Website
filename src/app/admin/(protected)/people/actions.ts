@@ -68,6 +68,23 @@ export async function adminDeleteUser(formData: FormData): Promise<Result> {
 const inviteEmail = z.string().trim().toLowerCase().email('Enter a valid email address');
 
 /**
+ * profiles.email is only a hint (it was self-editable before migration 0013),
+ * so a match counts only when auth.users agrees the account owns that address.
+ */
+async function findInviteTarget(
+  admin: ReturnType<typeof createAdminClient>,
+  email: string,
+): Promise<InviteTarget> {
+  const { data: rows } = await admin.from('profiles')
+    .select('id, role, stylist_id').eq('email', email);
+  for (const row of rows ?? []) {
+    const { data } = await admin.auth.admin.getUserById(row.id);
+    if (data?.user?.email?.toLowerCase() === email) return row as InviteTarget;
+  }
+  return null;
+}
+
+/**
  * Invite an email as staff: send the Supabase invite (new accounts), create a
  * hidden shell stylist card, and promote+link the profile — all as the acting
  * admin/owner session, because the profiles privilege trigger rejects every
@@ -82,9 +99,8 @@ export async function inviteStaff(formData: FormData): Promise<{ ok: true; note?
   const sb = await createClient();          // acting session: profiles + stylists writes
   const admin = createAdminClient();        // service role: email lookup + invite only
 
-  const { data: target } = await admin.from('profiles')
-    .select('id, role, stylist_id').eq('email', email).maybeSingle();
-  let decision: InviteDecision = inviteDecision(actor.role, (target as InviteTarget) ?? null);
+  const target = await findInviteTarget(admin, email);
+  let decision: InviteDecision = inviteDecision(actor.role, target);
   if (decision.kind === 'already_staff') return { ok: true, note: 'That person is already staff with a card.' };
   if (decision.kind === 'refuse') return { error: decision.reason };
 
@@ -96,10 +112,9 @@ export async function inviteStaff(formData: FormData): Promise<{ ok: true; note?
     });
     if (error || !data?.user) {
       // Raced: the account appeared between lookup and invite — promote it instead.
-      const { data: retry } = await admin.from('profiles')
-        .select('id, role, stylist_id').eq('email', email).maybeSingle();
+      const retry = await findInviteTarget(admin, email);
       if (!retry) return { error: error?.message ?? 'Could not send the invite.' };
-      decision = inviteDecision(actor.role, retry as InviteTarget);
+      decision = inviteDecision(actor.role, retry);
       if (decision.kind === 'already_staff') return { ok: true, note: 'That person is already staff with a card.' };
       if (decision.kind !== 'promote') return { error: decision.kind === 'refuse' ? decision.reason : 'Could not send the invite.' };
       profileId = decision.profileId;
