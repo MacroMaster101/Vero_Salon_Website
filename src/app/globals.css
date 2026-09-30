@@ -850,6 +850,100 @@ a.side__id:hover { border-color:var(--accent); }
   .data-table__actions .btn { margin:4px 0 0 6px; }
 }
 
+/* ══ Floating WhatsApp button ═══════════════════════════════ */
+/* Sits under the bottom nav (70) and every modal, above page content.
+   Layers, back to front: ripples (__pulse) → disc → gloss (::after) → icon.
+   Only transform/opacity animate, so it stays crisp. */
+.wa-fab {
+  position:fixed; right:28px; bottom:calc(28px + env(safe-area-inset-bottom)); z-index:65;
+  width:56px; height:56px; border-radius:50%; display:grid; place-items:center;
+  background:linear-gradient(160deg, #3FE27F 0%, #25D366 45%, #17B352 100%);
+  color:#fff; -webkit-tap-highlight-color:transparent;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.18),
+             0 0 14px rgba(37,211,102,.5), 0 10px 22px -8px rgba(0,0,0,.65);
+  transition:transform .3s var(--ease-app), box-shadow .3s ease;
+}
+/* soft gloss on the top half of the disc */
+.wa-fab::after {
+  content:''; position:absolute; inset:1px; border-radius:50%; pointer-events:none;
+  background:linear-gradient(180deg, rgba(255,255,255,.30), rgba(255,255,255,0) 48%);
+}
+.wa-fab svg { position:relative; z-index:1; width:28px; height:28px; }
+
+/* 'incoming call' ripples: two hairline rings that expand and fade while idle */
+.wa-fab__pulse { position:absolute; inset:0; border-radius:50%; pointer-events:none; transition:opacity .25s ease; }
+.wa-fab__pulse::before, .wa-fab__pulse::after {
+  content:''; position:absolute; inset:0; border-radius:50%;
+  border:1.5px solid rgba(60,226,124,.95);
+  opacity:0; will-change:transform, opacity;
+  animation:wa-ring 2.8s cubic-bezier(.16,.7,.3,1) infinite;
+}
+.wa-fab__pulse::after { animation-delay:1.4s; }
+
+/* Light theme: a glow disappears on white, so use a tinted drop shadow and a
+   deeper green ripple that still reads against a pale page. */
+:root:not([data-theme="dark"]) .wa-fab {
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.22),
+             0 8px 18px -4px rgba(16,150,72,.55), 0 12px 24px -12px rgba(0,0,0,.35);
+}
+:root:not([data-theme="dark"]) .wa-fab__pulse::before,
+:root:not([data-theme="dark"]) .wa-fab__pulse::after { border:2px solid rgba(18,160,78,.9); }
+
+.wa-fab:active { transform:scale(.94); }
+.wa-fab:focus-visible { outline:2px solid #fff; outline-offset:6px; }
+
+/* label pill that slides out to the left on hover / keyboard focus */
+.wa-fab__label {
+  position:absolute; right:calc(100% + 14px); top:50%; white-space:nowrap; pointer-events:none;
+  padding:9px 15px; border-radius:999px; font-size:13px; font-weight:600; letter-spacing:.01em;
+  color:#fff; background:rgba(12,16,13,.92); border:1px solid rgba(60,226,124,.55);
+  box-shadow:0 8px 20px -8px rgba(0,0,0,.7);
+  opacity:0; transform:translate(8px,-50%); transition:opacity .2s ease, transform .3s var(--ease-app);
+}
+.wa-fab:focus-visible .wa-fab__label { opacity:1; transform:translate(0,-50%); }
+
+/* hover only where a real pointer exists, so touch screens never get a stuck hover */
+@media (hover:hover) and (pointer:fine) {
+  .wa-fab:hover {
+    transform:translateY(-3px) scale(1.08);
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.28),
+               0 0 22px rgba(37,211,102,.8), 0 14px 26px -8px rgba(0,0,0,.65);
+  }
+  :root:not([data-theme="dark"]) .wa-fab:hover {
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.3),
+               0 12px 24px -4px rgba(16,150,72,.65), 0 16px 28px -12px rgba(0,0,0,.4);
+  }
+  /* the ripple rests while the pointer is on the button */
+  .wa-fab:hover .wa-fab__pulse { opacity:0; }
+  .wa-fab:hover .wa-fab__pulse::before, .wa-fab:hover .wa-fab__pulse::after { animation-play-state:paused; }
+  .wa-fab:hover .wa-fab__label { opacity:1; transform:translate(0,-50%); }
+  .wa-fab:hover:active { transform:scale(.96); }
+}
+
+@keyframes wa-ring {
+  0%   { transform:scale(1);   opacity:.8; }
+  70%  { opacity:0; }
+  100% { transform:scale(1.9); opacity:0; }
+}
+@media (max-width:780px) {
+  /* thumb-sized, lined up with the bottom-nav dock's right edge and clear of it;
+     a smaller, slower ripple so it doesn't crowd a narrow screen */
+  .wa-fab { right:16px; width:52px; height:52px; bottom:calc(100px + env(safe-area-inset-bottom)); }
+  .wa-fab svg { width:26px; height:26px; }
+  .wa-fab__label { display:none; }
+  .wa-fab__pulse::before, .wa-fab__pulse::after { animation-name:wa-ring-sm; animation-duration:3.2s; }
+  .wa-fab__pulse::after { animation-delay:1.6s; }
+}
+@keyframes wa-ring-sm {
+  0%   { transform:scale(1);   opacity:.7; }
+  70%  { opacity:0; }
+  100% { transform:scale(1.55); opacity:0; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .wa-fab, .wa-fab__label { transition:none; }
+  .wa-fab__pulse::before, .wa-fab__pulse::after { animation:none; }
+}
+
 /* ══ Mobile bottom nav ══════════════════════════════════════ */
 .bottom-nav { display:none; }
 
