@@ -5,7 +5,19 @@
 // DiceBear's HTTP API is public and key-less: https://www.dicebear.com/
 
 const DICEBEAR_STYLE = 'lorelei'; // stylish pictorial avatars that match the brand
-const DICEBEAR_BASE = `https://api.dicebear.com/9.x/${DICEBEAR_STYLE}/svg`;
+const DICEBEAR_HOST = 'api.dicebear.com';
+const DICEBEAR_BASE = `https://${DICEBEAR_HOST}/9.x/${DICEBEAR_STYLE}/svg`;
+
+/** Hostname of an http(s) URL, or null — compare hosts, never substrings. */
+function httpHost(url: string | null | undefined): string | null {
+  if (!url) return null;
+  try {
+    const u = new URL(url);
+    return u.protocol === 'http:' || u.protocol === 'https:' ? u.hostname : null;
+  } catch {
+    return null;
+  }
+}
 
 /** A stable DiceBear URL for the given seed (email > name > 'guest'). */
 export function dicebearUrl(seed: string | null | undefined): string {
@@ -44,7 +56,8 @@ export function getAvatarInfo(userMetadata: UserMetadata | null | undefined, see
 
   // Extract email provider avatar URL (Google profile photo)
   let emailAvatar = meta.picture || meta.email_avatar_url || null;
-  if (currentAvatarUrl && currentAvatarUrl.startsWith('http') && !currentAvatarUrl.includes('/storage/v1/object/public/avatars/') && !currentAvatarUrl.includes('api.dicebear.com')) {
+  const avatarHost = httpHost(currentAvatarUrl);
+  if (currentAvatarUrl && avatarHost && !currentAvatarUrl.includes('/storage/v1/object/public/avatars/') && avatarHost !== DICEBEAR_HOST) {
     emailAvatar = currentAvatarUrl;
   }
 

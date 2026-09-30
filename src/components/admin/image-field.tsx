@@ -2,6 +2,19 @@
 import { useRef, useState, useTransition } from 'react';
 import { uploadImage } from '@/lib/admin/upload';
 
+// Only preview typed values that are a site-relative path or an http(s) URL.
+function previewSrc(value: string): string | null {
+  const v = value.trim();
+  if (!v) return null;
+  if (v.startsWith('/') && !v.startsWith('//')) return encodeURI(v);
+  try {
+    const u = new URL(v);
+    return u.protocol === 'http:' || u.protocol === 'https:' ? u.href : null;
+  } catch {
+    return null;
+  }
+}
+
 export function ImageField({ name, label = 'Image', defaultValue = '' }: { name: string; label?: string; defaultValue?: string | null }) {
   const [url, setUrl] = useState(defaultValue ?? '');
   const [error, setError] = useState<string | null>(null);
@@ -21,6 +34,8 @@ export function ImageField({ name, label = 'Image', defaultValue = '' }: { name:
     });
   }
 
+  const preview = previewSrc(url);
+
   return (
     <div className="afield">
       <span className="alabel">{label}</span>
@@ -31,7 +46,7 @@ export function ImageField({ name, label = 'Image', defaultValue = '' }: { name:
       </div>
       {error && <p className="astatus astatus--err">{error}</p>}
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      {url && <img src={url} alt="preview" className="athumb" />}
+      {preview && <img src={preview} alt="preview" className="athumb" />}
     </div>
   );
 }
