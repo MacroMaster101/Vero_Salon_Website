@@ -35,8 +35,9 @@ const sections: LegalSection[] = [
         <ul>
           <li><strong>Google</strong> — only if you choose to sign in with Google (for authentication).</li>
           <li><strong>Resend</strong> — to send your booking confirmation email.</li>
+          <li><strong>Vercel</strong> — hosts this website and gives us anonymous, cookie-free visit counts and page-speed measurements. It does not identify you or follow you across other sites.</li>
         </ul>
-        <p>We do not sell your data or use third-party advertising or analytics trackers.</p>
+        <p>We do not sell your data or use advertising trackers.</p>
       </>
     ),
   },
@@ -68,7 +69,7 @@ export default function PrivacyPage() {
       kicker="Legal"
       title="Privacy Policy"
       lead="What we collect when you book or create an account, why we collect it, and how to have it removed."
-      updated="5 June 2026"
+      updated="1 October 2026"
       sections={sections}
     />
   );
