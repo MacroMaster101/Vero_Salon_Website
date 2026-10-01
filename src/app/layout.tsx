@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import Script from 'next/script';
 import { cookies } from 'next/headers';
 import { SpeedInsights } from '@vercel/speed-insights/next';
+import { Analytics } from '@vercel/analytics/next';
 import { poppins, fraunces } from '@/lib/fonts';
 import { env } from '@/lib/env';
 import './globals.css';
@@ -98,6 +99,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body className={`${poppins.variable} ${fraunces.variable}`}>
         {children}
         <SpeedInsights />
+        <Analytics />
       </body>
     </html>
   );
