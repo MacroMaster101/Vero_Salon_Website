@@ -1,8 +1,7 @@
 import { ImageResponse } from 'next/og';
 
 // Branded social-share card (WhatsApp / Facebook / X link previews).
-// Rendered at the standard 1200×630 OG size.
-export const runtime = 'edge';
+// Rendered at the standard 1200×630 OG size; static, so it's generated at build time.
 export const alt = 'Vero Salon — Hair & Beauty Unisex · Pasyala';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
@@ -61,7 +60,14 @@ export default function OpengraphImage() {
         {/* footer */}
         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 24, color: 'rgba(250,246,239,0.78)' }}>
           <span>Hair · Colour · Beauty · Bridal</span>
-          <span>4.9 ★ · Open until midnight</span>
+          {/* The built-in OG font has no ★ glyph, so draw the star as SVG. */}
+          <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            4.9
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="#E8B05A">
+              <path d="M12 2l2.9 6.9 7.1.6-5.4 4.7 1.6 7L12 17.3 5.8 21.2l1.6-7L2 9.5l7.1-.6z" />
+            </svg>
+            · Open until midnight
+          </span>
         </div>
       </div>
     ),
