@@ -60,11 +60,35 @@ playwright-report/
 /tests/
 
 .vscode/
+.idea/
 
 # local notes & scratch (not published)
 *.md
 !README.md
+!SECURITY.md
 /docs/
 !docs/privacy.md
 /reference/
-/.claude
+
+# AI assistant / agent tooling (local only)
+.claude/
+.cursor/
+.cursorrules
+.cursorignore
+.windsurf/
+.windsurfrules
+.codex/
+.gemini/
+.aider*
+.continue/
+.copilot/
+.github/copilot-instructions.md
+.agents/
+.mcp.json
+graphify-out/
+*.local.json
+
+# OS / editor leftovers
+Thumbs.db
+desktop.ini
+*.log
