@@ -13,6 +13,11 @@ updates:
       time: "06:00"
       timezone: "Asia/Colombo"
     open-pull-requests-limit: 5
+    ignore:
+      # TypeScript 7 breaks linting: typescript-eslint (used by
+      # eslint-config-next) only supports TS < 6.1. Drop this once it does.
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
     groups:
       # minor and patch bumps arrive together as one PR
       npm-minor-and-patch:
