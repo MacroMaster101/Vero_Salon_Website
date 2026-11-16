@@ -14,7 +14,7 @@
     "db:types": "supabase gen types typescript --linked > src/lib/supabase/types.ts"
   },
   "dependencies": {
-    "@hookform/resolvers": "^5.4.0",
+    "@hookform/resolvers": "^7.0.6",
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.119.0",
     "@vercel/analytics": "^2.0.1",
