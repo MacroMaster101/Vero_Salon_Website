@@ -1,0 +1,23 @@
+# Dependabot version updates go to Dev, so they can be tested there and reach
+# main with the next Dev -> main pull request.
+# Note: GitHub ignores target-branch for *security* updates; those still open
+# against main. Merge them into Dev the same way before shipping.
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    target-branch: "Dev"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "Asia/Colombo"
+    open-pull-requests-limit: 5
+    groups:
+      # minor and patch bumps arrive together as one PR
+      npm-minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
+    commit-message:
+      prefix: "deps"
