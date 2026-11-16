@@ -1,0 +1,287 @@
+/* Section polish — loaded last.
+   1. No separator lines between sections: whitespace and background changes
+      already separate them. Dividers INSIDE content (FAQ rows, visit details,
+      footer copyright row) stay, because they separate list items.
+   2. "View all / Explore / Get to know" links become clearly visible outline
+      buttons in the accent colour that fill on hover (they were 12px text with
+      a hairline underline). Same corner radius and height as the other buttons.
+   3. Secondary buttons share one ghost style (Facebook had been stripped bare). */
+
+/* ── 1. separators ── */
+.home .home-header, .home .home-header.is-scrolled { border-bottom: 0; transition: box-shadow .3s ease; }
+/* sticky header: no line at rest; a soft shadow only once content scrolls under it */
+.home .home-header.is-raised { box-shadow: 0 12px 32px -22px rgba(0,0,0,.3); }
+.home .home-hero { border-bottom: 0; }
+.home .salon-home-guide__intro { border-top: 0; padding-top: 0; }
+/* inner pages: the facts strip, filter toolbars and the location card sat
+   between double hairlines; spacing does that job on its own */
+.home .detail-service-facts { border-block: 0; padding-block: 4px 0; }
+.home .detail-services .salon-catalog__toolbar,
+.home .directory-toolbar,
+.home .salon-gallery-toolbar { border-bottom: 0; }
+.home .location-page-card:first-of-type { border-top: 0; }
+.home .salon-home-reviews .salon-google-reviews {
+  border: 0; border-radius: 22px;
+  background: var(--bg-2);
+  padding: clamp(24px, 3vw, 48px) clamp(22px, 3.2vw, 56px);
+}
+
+/* ── 2. "view more" links → visible accent outline buttons ── */
+.home .salon-section-link,
+.home .home-link {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  min-height: 52px; padding: .8em 1.4em;
+  border: 1.5px solid color-mix(in srgb, var(--accent) 60%, var(--line));
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--accent) 7%, transparent);
+  color: var(--accent-text); font-weight: 600; line-height: 1.2; text-decoration: none;
+  transition: background-color .25s ease, color .25s ease, border-color .25s ease, transform .25s ease;
+}
+.home .salon-section-link:hover, .home .home-link:hover,
+.home .salon-section-link:focus-visible, .home .home-link:focus-visible {
+  background: var(--accent); border-color: var(--accent); color: #fff;
+}
+.home .salon-section-link:active, .home .home-link:active { transform: scale(.97); }
+.home .salon-section-link:focus-visible, .home .home-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+/* ── 3. one ghost style for secondary buttons ── */
+.home .salon-home-visit .home-visit__actions a:last-child,
+.home .home-btn--ghost {
+  padding: .95em 1.45em;
+  border: 1.5px solid var(--line); border-radius: 10px;
+  background: transparent; color: var(--fg); font-weight: 600;
+}
+.home .salon-home-visit .home-visit__actions a:last-child:hover,
+.home .home-btn--ghost:hover { border-color: var(--accent); color: var(--accent-text); }
+
+/* ── 4. footer: four groups → four columns on desktop (Contact was wrapping to a new row) ── */
+@media (min-width: 1024px) {
+  .home .home-foot__grid { grid-template-columns: 1.4fr 1fr 1fr 1fr; }
+}
+@media (min-width: 768px) and (max-width: 1023px) {
+  .home .home-foot__grid { grid-template-columns: 1fr 1fr 1fr; }
+  .home .home-foot__brand { grid-column: 1 / -1; }
+}
+
+/* ── 5. homepage order: Hero → Story → How it works → Services → … ──
+   The guide now follows the grey story band, so it needs its own top space;
+   Services follows the white guide, so its top padding would double the gap. */
+.home--studio > main > .salon-home-guide { padding-top: 80px; }
+.home--studio #services.salon-home-services { padding-top: 8px; }
+@media (max-width: 767px) {
+  .home--studio > main > .salon-home-guide { padding-top: 48px; }
+  .home--studio #services.salon-home-services { padding-top: 0; }
+}
+@media (min-width: 1921px) {
+  .home--studio > main > .salon-home-guide { padding-top: calc(var(--u) * 80); }
+  .home--studio #services.salon-home-services { padding-top: calc(var(--u) * 8); }
+}
+
+/* ── 6. blended bands ──
+   Grey bands (--bg-2) used to start and stop with a hard edge against the
+   white/black page (--bg), which reads as a line. Each band now fades in and
+   out over --blend, so neighbouring sections melt into each other. Both
+   colours are theme tokens, so light and dark blend the same way. */
+.home { --blend: clamp(56px, 7vw, 150px); }
+.home .band-fade,
+.home--studio > main > .salon-home-story,
+.home .detail-facts {
+  background: linear-gradient(to bottom,
+    var(--bg) 0, var(--bg-2) min(var(--blend), 35%),
+    var(--bg-2) calc(100% - min(var(--blend), 35%)), var(--bg) 100%);
+}
+/* bands that run straight into the footer: fade in only, stay grey below */
+.home--studio > main > .salon-home-visit,
+.home .detail-visit-questions {
+  background: linear-gradient(to bottom, var(--bg) 0, var(--bg-2) min(var(--blend), 35%), var(--bg-2) 100%);
+}
+/* footer: fades in from the page, unless the page already ends on a grey band */
+.home .home-foot {
+  background: linear-gradient(to bottom, var(--bg) 0, var(--bg-2) var(--blend), var(--bg-2) 100%);
+}
+.home:has(#main-content > .salon-home-visit:last-child, #main-content > .detail-page > .detail-visit-questions:last-child) .home-foot {
+  background: var(--bg-2);
+}
+.home .detail-facts { padding-block: 56px; }
+.home .detail-visit-questions { padding-top: calc(45px + var(--blend) * .5); }
+/* hero portrait on PC (≥1024): no fades on the photo. The portrait ends
+   exactly at the bottom of the hero, so it stands on the grey story band,
+   which starts solid right there. The grey circle behind the person is the
+   same grey, so circle and band read as one shape the portrait sits on. */
+@media (min-width: 1024px) {
+  .home--studio > main > .salon-home-story {
+    background: linear-gradient(to bottom, var(--bg-2) 0, var(--bg-2) calc(100% - min(var(--blend), 35%)), var(--bg) 100%);
+  }
+}
+
+/* ── 7. tablets (768–1023): stack the hero like phones do ──
+   The two-column PC hero squeezed the portrait into a 350px column, and the
+   absolutely-placed 3:2 photo spread ~1300px wide right across the headline. */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .home .home-hero__grid { grid-template-columns: 1fr; grid-template-rows: auto auto; min-height: 0; gap: 0; }
+  .home .studio-hero-copy { padding: 56px 0 28px; max-width: 640px; }
+  .home .salon-hero-rotation { height: clamp(380px, 52vw, 520px); min-height: 0; }
+  .home .salon-hero-rotation .studio-hero-image { inset: 0 0 auto auto; width: 100%; height: 100%; }
+}
+@media (min-width: 768px) and (max-width: 1023px) {
+  .home .salon-hero-rotation { height: clamp(440px, 64vw, 620px); }
+  .home .salon-hero-rotation .salon-hero-slide img { object-position: center bottom; }
+}
+/* stacked hero (phones + tablets): the photo's own light backdrop showed a
+   hard top edge under the text, so fade it in at the top as well */
+@media (max-width: 1023px) {
+  .home .home-hero .studio-hero-visual {
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 22%, #000 calc(100% - var(--blend)), transparent 100%);
+            mask-image: linear-gradient(to bottom, transparent 0, #000 22%, #000 calc(100% - var(--blend)), transparent 100%);
+  }
+}
+@media (max-width: 1023px) {
+  /* the backdrop circle was 110% of the box WIDTH, so on stacked layouts it
+     rose above the photo box and got sliced into a hard-edged block */
+  .home .home-hero .studio-hero-shape {
+    width: auto; height: 88%; aspect-ratio: 1;
+    right: 50%; bottom: 0; transform: translateX(50%);
+  }
+  .home .home-hero .studio-hero-visual {
+    -webkit-mask-clip: border-box; mask-clip: border-box;
+    -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+  }
+}
+@media (max-width: 1023px) {
+  /* the people sit right of centre in the photos: centre the circle on them */
+  .home .salon-hero-rotation .salon-hero-slide img { object-position: center bottom; }
+  .home .home-hero .studio-hero-shape { right: 38%; }
+  .home .home-hero .studio-hero-visual {
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 12%, #000 calc(100% - var(--blend)), transparent 100%);
+            mask-image: linear-gradient(to bottom, transparent 0, #000 12%, #000 calc(100% - var(--blend)), transparent 100%);
+  }
+}
+
+/* ── 8. tablets: service groups as wide rows (photo left, list right) ──
+   Three columns at 768–1023 left ~220px per group, so names wrapped and
+   prices crowded. One row per group reads like a menu. */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .home .salon-service-menu { grid-template-columns: 1fr; gap: 40px; }
+  .home .salon-service-group {
+    display: grid; grid-template-columns: minmax(0, 42%) minmax(0, 1fr);
+    grid-template-rows: auto auto 1fr; column-gap: 32px; align-items: start;
+  }
+  .home .salon-service-group > .salon-service-image { grid-row: 1 / -1; height: 100%; min-height: 260px; aspect-ratio: auto; max-height: none; }
+  .home .salon-service-group > :not(.salon-service-image) { grid-column: 2; }
+  .home .salon-service-group > .salon-service-title { margin-top: 4px; }
+  /* lookbook captions: the category tag moves above the title instead of squeezing it */
+  .home .salon-look-pair .salon-look-tile__caption { flex-direction: column-reverse; align-items: flex-start; gap: 4px; }
+}
+
+/* ── 9. small laptops (1024–1279): a slightly smaller hero photo ──
+   At full height the 3:2 photo spread ~950px wide and the person slid under
+   the intro text. Capping its height keeps the whole photo (uncropped, no
+   fades) clear of the text, still standing on the bottom edge. */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .home .salon-hero-rotation .studio-hero-image {
+    inset: auto calc(-1 * var(--home-edge)) 0 auto;
+    height: min(calc(100% - 20px), 46vw); width: auto; aspect-ratio: 3 / 2;
+  }
+}
+
+/* ── 10. header ──
+   One clean row: no divider before the actions, readable links with a soft
+   pill highlight (no underlines), the segmented language pill, a slightly
+   shorter bar, and frosted glass once content scrolls under it. */
+@media (min-width: 1024px) {
+  .home .home-header__actions { border-left: 0; padding-left: 0; gap: 10px; }
+  .home .home-header .home-nav { margin-inline: auto; gap: 2px; }
+  .home .home-header .home-nav a {
+    padding: 8px 13px; border-radius: 999px; line-height: 1.3;
+    font-weight: 500; color: color-mix(in srgb, var(--fg) 78%, transparent);
+    transition: background-color .2s ease, color .2s ease;
+  }
+  .home .home-header .home-nav a:hover { background: color-mix(in srgb, var(--fg) 6%, transparent); color: var(--fg); }
+  .home .home-header .home-nav a:is(.is-active, [aria-current="page"]) {
+    background: color-mix(in srgb, var(--accent) 10%, transparent); color: var(--accent-text);
+  }
+  .home .home-header .home-nav a::after,
+  .home .home-header .home-nav a.is-active::after { display: none; }
+  .home .home-header .lang-toggle .lang-toggle__btn { font-size: 12.5px; min-height: 30px; padding: 6px 12px; }
+  .home .home-header.is-raised { background: color-mix(in srgb, var(--bg) 92%, transparent); -webkit-backdrop-filter: saturate(1.4) blur(16px); backdrop-filter: saturate(1.4) blur(16px); }
+  .home .home-header.is-raised .home-header__inner { background: transparent; }
+}
+@media (min-width: 1024px) and (max-width: 1920px) {
+  .home .home-header .home-header__inner,
+  .home .home-header.is-scrolled .home-header__inner { height: 78px; }
+}
+@media (min-width: 1024px) and (max-width: 1600px) {
+  .home .home-header .home-nav a { font-size: 14px; }
+}
+@media (min-width: 1280px) and (max-width: 1439px) {
+  .home .home-header .home-nav a { padding-inline: 10px; font-size: 13.5px; }
+}
+/* small laptops: keep the five main pages; How it works, Reviews and FAQ stay
+   in the footer and on the homepage, so the row never crowds or wraps */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .home .home-header .home-nav a:is([href="/your-visit"], [href="/#reviews"], [href="/#faq"]):not([aria-current="page"]) { display: none; }
+  .home .home-header .home-nav a { padding-inline: 11px; }
+}
+/* tablets/phones: the header shows just the other language as one pill button */
+@media (max-width: 1023px) {
+  .home .home-header__lang { border-radius: 999px; }
+  .home .home-header .lang-toggle .lang-toggle__btn { color: var(--fg); padding-inline: 12px; }
+}
+.auth__prefs .auth__lang { border-radius: 999px; padding: 3px; }
+
+/* ── 11. visit buttons on phones: "Book a visit" was squeezed to ~50px and its
+   label clipped. The main button takes its own full row; the two secondary
+   buttons share the next row. ── */
+.home .home-visit__actions > * { flex: 1 1 auto; min-width: max-content; }
+@media (max-width: 767px) {
+  .home .home-visit__actions .home-btn--primary { flex-basis: 100%; }
+  .home .home-visit__actions > :not(.home-btn--primary) { flex: 1 1 0; min-width: 0; white-space: nowrap; }
+}
+
+/* ── 12. "Your visit": the page wrapper's 65px bottom padding sat between the
+   grey questions band and the grey footer, showing as a page-colour stripe
+   (white in light, black in dark). The space now lives inside the band. ── */
+.home .detail-page:has(> .detail-visit-questions:last-child) { padding-bottom: 0; }
+.home .detail-page > .detail-visit-questions:last-child { padding-bottom: 110px; }
+
+/* ── 13. inner page intros: every page opens the same way as the homepage
+   sections (eyebrow chip → heading), the heading and its side text share a
+   baseline instead of floating at different heights, and the side links/
+   buttons sit at one distance from the text. ── */
+.home .detail-heading__title { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; }
+.home .detail-heading .home-eyebrow { margin-bottom: 20px; }
+@media (min-width: 768px) { .home .detail-heading__row { align-items: end; } }
+.home .detail-heading__aside > :is(.salon-section-link, .home-btn, a, .location-jump) { margin-top: 20px; }
+.home .detail-heading__aside > .detail-collection-label { margin-top: 14px; color: var(--fg-muted); letter-spacing: .04em; }
+
+/* ── 14. "Our story" next-step links: two cards side by side instead of ruled
+   rows, numbers in one column, and a round arrow so they read as clickable. ── */
+.home .detail-story-links { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; padding-top: 48px; }
+.home .detail-story-links > a {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 18px;
+  padding: 30px; border: 0; border-radius: 16px; background: var(--bg-2);
+  transition: transform .3s cubic-bezier(.2,.7,.2,1), box-shadow .3s ease;
+}
+.home .detail-story-links > a > span:first-child {
+  display: inline-grid; place-items: center; min-width: 34px; height: 34px; padding-inline: 8px;
+  border-radius: 999px; background: color-mix(in srgb, var(--accent) 10%, transparent);
+  color: var(--accent-text); font-size: 12px; font-weight: 600;
+}
+.home .detail-story-links > a > .detail-story-links__go {
+  margin-top: auto; margin-left: 0; display: inline-grid; place-items: center;
+  width: 42px; height: 42px; border-radius: 50%; font-size: 18px; line-height: 1;
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--line)); color: var(--accent-text);
+  transition: background-color .25s ease, color .25s ease, transform .25s ease;
+}
+.home .detail-story-links > a:hover { transform: translateY(-3px); box-shadow: 0 18px 40px -28px rgba(0,0,0,.35); }
+.home .detail-story-links > a:hover .detail-story-links__go { background: var(--accent-dark); border-color: var(--accent-dark); color: #fff; transform: translateX(3px); }
+.home .detail-story-links > a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+@media (max-width: 767px) {
+  .home .detail-story-links { grid-template-columns: 1fr; gap: 14px; padding-top: 32px; }
+  .home .detail-story-links > a { padding: 24px; gap: 14px; }
+}
+
+/* ── 15. no breadcrumb on inner pages: the header already marks the current
+   page, so the intro starts straight with the eyebrow chip. ── */
+.home .detail-heading { padding-top: 64px; }
+@media (max-width: 767px) { .home .detail-heading { padding-top: 36px; } }

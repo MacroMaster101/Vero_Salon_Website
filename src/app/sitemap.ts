@@ -5,7 +5,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = env.siteUrl.replace(/\/$/, '');
 
   // Genuine indexable public pages
-  const routes = ['', '/privacy', '/terms'];
+  const routes = ['', '/services', '/about', '/stylists', '/your-visit', '/lookbook', '/visit', '/privacy', '/terms'];
 
   return routes.map((route) => ({
     url: `${baseUrl}${route}`,

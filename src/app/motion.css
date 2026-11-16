@@ -1,0 +1,45 @@
+/* Motion layer — one consistent, quiet vocabulary across every section:
+   • sections and cards rise in on scroll (HomeEffects)
+   • cards answer the pointer with the same soft accent glow
+   • photos zoom gently on hover
+   • the primary button sweeps a highlight once, on hover only
+   Removed for consistency: the border beam (it ran on 3 boxes only), the
+   gradient on the hero accent word (every other accent word is solid), the
+   always-on button shimmer, and the card lift that only some cards had.
+   Colours come from --accent / --surface / --line, so both themes match. */
+
+@media (prefers-reduced-motion: no-preference) {
+
+  /* ── primary button: a single highlight sweep on hover ── */
+  .home-btn--primary, .btn--primary { position: relative; overflow: hidden; isolation: isolate; }
+  .home-btn--primary::after, .btn--primary::after {
+    content: ""; position: absolute; inset: -2px; z-index: -1; pointer-events: none;
+    background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,.32) 48%, transparent 66%);
+    transform: translateX(-120%);
+  }
+  .home-btn--primary:hover::after, .btn--primary:hover::after,
+  .home-btn--primary:focus-visible::after, .btn--primary:focus-visible::after {
+    transform: translateX(120%); transition: transform .8s cubic-bezier(.4,0,.2,1);
+  }
+
+  /* ── cards: the same pointer glow everywhere (position fed by MotionEffects) ── */
+  .home-scard, .home-member, .home-review, .home-card, .directory-person { position: relative; }
+  .home-scard::after, .home-member::after, .home-review::after, .home-card::after, .directory-person::after {
+    content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: 1;
+    background: radial-gradient(320px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--accent) 12%, transparent), transparent 70%);
+    opacity: 0; transition: opacity .35s ease;
+  }
+  .home-scard:hover::after, .home-member:hover::after, .home-review:hover::after, .home-card:hover::after, .directory-person:hover::after { opacity: 1; }
+
+  /* ── photos: one gentle hover zoom for every clickable image ── */
+  .salon-gallery__item img, .home-look img, .salon-look-tile__image img, .salon-service-image img {
+    transition: transform 1s cubic-bezier(.16,1,.3,1);
+  }
+  .salon-gallery__item:hover img, .home-look:hover img, a:hover .salon-look-tile__image img, .salon-service-image:hover img { transform: scale(1.04); }
+
+  /* ── language switch press feedback ── */
+  .lang-toggle button { transition: background-color .2s ease, color .2s ease, transform .2s ease; }
+  .lang-toggle button:active { transform: scale(.92); }
+}
+
+.salon-google-reviews strong [data-ticker] { font: inherit; font-variant-numeric: tabular-nums; }

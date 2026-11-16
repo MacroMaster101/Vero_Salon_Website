@@ -66,7 +66,7 @@ export function SignupForm({ next, prefillEmail = '', locale = 'en' }: { next: s
                 <div className="meter"><i style={{ width: `${(check.score / 5) * 100}%`, background: barColor }} /></div>
                 <ul className="reqs">
                   {check.results.map((r) => (
-                    <li key={r.id} className={r.met ? 'met' : ''}><span className="dot">{r.met ? '✓' : ''}</span> {r.label}</li>
+                    <li key={r.id} className={r.met ? 'met' : ''}><span className="dot">{r.met ? '✓' : ''}</span> {t(r.label, locale)}</li>
                   ))}
                 </ul>
               </div>

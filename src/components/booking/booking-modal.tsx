@@ -70,7 +70,7 @@ export function BookingModal({
         <div className="home-modal__head">
           <div className="home-modal__head-left">
             {!isComingSoon && back && (
-              <button type="button" className="home-modal__back" onClick={back} aria-label="Go back a step">
+              <button type="button" className="home-modal__back" onClick={back} aria-label={t('Go back a step', locale)}>
                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                   <polyline points="15 18 9 12 15 6" />
                 </svg>
@@ -78,7 +78,7 @@ export function BookingModal({
             )}
             <h2 id="booking-modal-title" className="home-modal__title">{t('Book your visit', locale)}</h2>
           </div>
-          <button type="button" className="home-modal__close" aria-label="Close booking" onClick={onClose}>×</button>
+          <button type="button" className="home-modal__close" aria-label={t('Close booking', locale)} onClick={onClose}>×</button>
         </div>
         {isComingSoon ? (
           <ComingSoon locale={locale} />

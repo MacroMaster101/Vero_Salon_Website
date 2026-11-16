@@ -1,0 +1,147 @@
+/* One fluid page width and a readable type scale across the public site. */
+.home {
+  --home-maxw:100%;
+  --home-edge:clamp(16px,3vw,72px);
+  --text-body:clamp(16px,.22vw + 13px,20px);
+  --text-small:clamp(13px,.16vw + 11px,16px);
+  --text-card:clamp(20px,1vw + 9px,32px);
+}
+.home .home-wrap { width:100%; max-width:none; margin-inline:0; padding-inline:var(--home-edge); }
+.home .home-header .home-header__inner,.home .home-header.is-scrolled .home-header__inner { width:100%; max-width:none; padding-inline:var(--home-edge); }
+.home main :is(section,article,figure,nav),.home main :is(section,article,figure,nav) > * { min-width:0; }
+.home main :is(h1,h2,h3,p,dd,a) { overflow-wrap:break-word; }
+.home.home--studio main :is(p,dd) { font-size:var(--text-body); line-height:1.85; }
+.home.home--studio main :is(.home-lead,.home-hero__lead,.home-scard__desc,.salon-look-intro > p,.salon-faq-intro p,.salon-service-group > p,.detail-heading__aside > p,.detail-story-body p,.detail-help p,.detail-visit-steps p,.detail-story-links p,.salon-google-reviews p) { font-size:var(--text-body); line-height:1.85; }
+.home.home--studio :is(.home-eyebrow,.detail-breadcrumb,.home-scard__dur,.salon-result-count,.directory-role,.directory-specialties > span,.detail-sign,.salon-pricing-note,.detail-price-note,.detail-service-facts,.detail-collection-label,.salon-look-tile__caption small,.location-page-info dt,.salon-visit-details > div > span,.salon-visit-details small,.directory-toolbar > p,.salon-catalog__filters > p,.salon-menu-note) { font-size:var(--text-small); line-height:1.7; letter-spacing:0; }
+.home.home--studio :is(.home-h,.salon-home-services .home-h,.salon-home-story .home-h,.salon-look-intro .home-h,.salon-home-guide__intro .home-h) { font-size:clamp(30px,2.5vw + 12px,64px); line-height:1.25; }
+.home .detail-heading h1,.home .detail-services .detail-heading h1 { font-size:clamp(36px,3.5vw + 10px,86px); line-height:1.18; max-width:22ch; }
+.home .detail-services .detail-heading h1 { max-width:none; }
+.home .home-hero__display { font-size:clamp(48px,5.7vw,144px); }
+.home .home-hero__lead { max-width:45ch; }
+.home .home-hero__grid { min-height:clamp(620px,calc(100svh - 94px),1080px); }
+.home .salon-hero-rotation .studio-hero-image { right:calc(-1 * var(--home-edge)); }
+.home.home--studio .home-btn { font-size:clamp(14px,.2vw + 12px,18px); min-height:44px; }
+.home main :is(.home-svc__cat,.home-svc__aud,.directory-toolbar button,.home-location-tabs button) { min-height:44px; }
+.home .salon-lightbox__close { width:44px; height:44px; }
+.home-modal :is(p,input,label,select,.home-btn) { font-size:16px; line-height:1.7; }
+.home-modal__title { font-size:28px; line-height:1.3; }
+.home.home--studio :is(.home-link,.salon-section-link,.home-svc__cat,.home-svc__aud,.directory-toolbar button,.salon-search > span,.salon-search input,.home-location-tabs button,.location-jump-links a,.location-page-actions .home-btn) { font-size:clamp(14px,.18vw + 12px,17px); line-height:1.6; }
+.home.home--studio :is(.home-scard__name,.salon-service-title h3,.salon-look-tile__caption b,.salon-gallery__caption b) { font-size:var(--text-card); line-height:1.45; }
+.home.home--studio .home-scard__price { font-size:clamp(16px,.35vw + 12px,22px); }
+.home.home--studio :is(.salon-service-group li,.salon-service-group li > b,.directory-specialties li,.location-full-hours li,.salon-home-visit .home-hours li) { font-size:clamp(14px,.16vw + 12px,17px); line-height:1.8; }
+.home .home-header .home-nav a { font-size:14px; line-height:1.5; }
+.home .home-header .nav__cta { font-size:14px; }
+.home .home-header .home-btn { font-size:14px; }
+.home .home-header .lang-toggle button { font-size:14px; min-height:36px; }
+.home.home--studio :is(.home-foot a,.home-foot li,.home-foot__brand p,.home-foot h3,.home-foot__bottom) { font-size:var(--text-small); line-height:1.85; }
+.home .home-foot__grid { grid-template-columns:1.4fr 1fr 1fr; }
+.home .salon-service-image { height:auto; aspect-ratio:1.6; max-height:560px; }
+.home:not(.home--inner) .salon-home-story .home-story__art { max-height:650px; }
+.home .salon-home-story .home-story__grid { grid-template-columns:minmax(0,1.08fr) minmax(0,1fr); }
+.home .salon-home-story p { max-width:52ch; }
+.home .salon-look-editorial { grid-template-columns:minmax(0,1.25fr) minmax(0,1fr); gap:clamp(25px,3vw,72px); }
+.home .salon-look-tile--feature { min-height:clamp(480px,42vw,1100px); }
+.home .detail-story-banner > div { height:clamp(250px,30vw,680px); }
+.home .salon-home-visit .home-visit__map { min-height:clamp(380px,32vw,800px); max-height:none; }
+.home .location-page-map { min-height:clamp(360px,30vw,800px); }
+.home .detail-services .salon-catalog .home-scard__body { grid-template-columns:minmax(0,1fr) 140px 160px; }
+.home .directory-person__body { padding:clamp(20px,2vw,45px); }
+.home .directory-person h2 { font-size:clamp(26px,1.8vw,48px); }
+.home .directory-person,.home .directory-person__photo { min-height:clamp(290px,23vw,520px); }
+.home .directory-person .home-btn { font-size:15px; }
+.home .detail-step-photo { height:clamp(220px,22vw,560px); }
+.home .legal-wrap { width:100%; max-width:none; padding-inline:var(--home-edge); }
+.home .legal-lead,.home .legal-section p,.home .legal-section li { font-size:var(--text-body); line-height:1.85; }
+.auth { width:100%; max-width:1600px; padding-inline:clamp(18px,4vw,72px); }
+.auth__form { min-width:0; }
+.auth__lead,.auth__form :is(label,input,.btn,.msg,.auth__switch) { font-size:16px; line-height:1.7; }
+.auth__form :is(input,button) { min-height:44px; }
+.auth__form h1 { font-size:clamp(32px,3vw,54px); line-height:1.25; }
+.home-modal__body--done .confirm > p { font-size:16px!important; line-height:1.8!important; }
+.booking-contact-options { min-width:0; grid-template-columns:minmax(0,1fr); }
+.booking-contact-options .home-btn { min-width:0; white-space:normal; min-height:48px; font-size:16px!important; line-height:1.6; }
+.booking-contact-options .home-btn > svg { flex-shrink:0; }
+.booking-contact-options .home-btn > span { min-width:0; white-space:normal; overflow-wrap:anywhere; }
+.salon-lightbox__close { width:44px; height:44px; }
+.home main :is(.home-svc__cat,.home-svc__aud,.directory-toolbar button,.salon-gallery-filters button,.home-location-tabs button) { min-height:44px; }
+:lang(si) .home .home-hero__display { font-size:clamp(32px,3.4vw,88px); line-height:1.5; letter-spacing:0; }
+:lang(si) .home .detail-heading h1 { font-size:clamp(32px,2.8vw + 8px,66px); letter-spacing:0; }
+@media(min-width:2000px) {
+  .home .directory-grid { grid-template-columns:repeat(4,minmax(0,1fr)); }
+  .home .directory-person { grid-template-columns:40% minmax(0,1fr); }
+  .home .directory-person,.home .directory-person__photo { min-height:340px; }
+  .home .detail-services .salon-catalog .home-svc__cards { grid-template-columns:1fr 1fr; gap:0 50px; }
+  .home .detail-services .salon-catalog .home-scard__body { grid-template-columns:minmax(0,1fr) 120px 150px; }
+  .home .home-head,.home .detail-heading__row { gap:80px; }
+}
+@media(min-width:1024px) and (max-width:1600px) {
+  .home .home-header .home-header__inner { gap:18px; }
+  .home .home-header__actions { gap:9px; padding-left:12px; }
+  .home .home-header .home-nav { gap:12px; }
+  .home .home-header .home-nav a { font-size:13px; }
+  .home .home-header .home-btn { padding-inline:15px; }
+  .home .home-header .home-brand__name b { font-size:22px; }
+}
+@media(max-width:1023px) {
+  .home .home-header .home-nav { display:none; }
+  .home .home-dock { display:block; }
+  .home .home-header .home-header__actions { margin-left:auto; padding-left:0; border:0; }
+  .home .home-header :is(.nav__cta,.nav-profile,.home-header__book) { display:none; }
+  .home .home-foot { padding-bottom:calc(100px + env(safe-area-inset-bottom)); }
+  .home .home-header .home-header__lang { display:flex; }
+  .home .home-header__lang > button[aria-pressed=true],.home .home-header__lang > span { display:none; }
+  .home .home-header__lang { border:1px solid var(--line); border-radius:8px; padding:3px; }
+  .home .detail-services .salon-catalog .home-scard__body { grid-template-columns:minmax(0,1fr) 110px 135px; gap:6px 18px; }
+}
+@media(max-width:767px) {
+  .home { --home-edge:clamp(16px,4vw,26px); }
+  .home .home-header .home-header__inner { height:76px; gap:8px; }
+  .home .home-header__actions { gap:5px; }
+  .home .home-header .home-brand__mark { width:38px; height:38px; }
+  .home .home-header .home-brand__name b { font-size:20px; }
+  .home .home-header .home-brand__name small { font-size:11px; }
+  .home .home-hero__grid { min-height:0; grid-template-rows:auto auto; }
+  .home .home-hero__display { font-size:clamp(44px,12vw,74px); }
+  .home .home-hero__display .ln { white-space:normal; }
+  .home .salon-hero-rotation .studio-hero-image { right:0; }
+  .home .home-hero__lead { max-width:45ch; }
+  .home .salon-hero-rotation { height:clamp(260px,34svh,370px); }
+  .home .salon-home-story .home-story__grid { grid-template-columns:1fr; }
+  .home .salon-look-editorial { grid-template-columns:1fr; }
+  .home .salon-look-tile--feature { min-height:0; }
+  .home .salon-service-image { max-height:none; }
+  .home .salon-home-visit .home-visit__map,.home .location-page-map { min-height:300px; }
+  .home .detail-services .salon-catalog .home-scard__body { grid-template-columns:minmax(0,1fr) auto; gap:8px 12px; }
+  .home .detail-services .salon-catalog .home-scard { grid-template-columns:64px minmax(0,1fr); gap:16px; }
+  .home.home--studio .detail-services .salon-catalog .home-scard__name { font-size:20px; }
+  .home .detail-services .salon-catalog .home-scard__dur { font-size:14px; }
+  .home .directory-grid { grid-template-columns:1fr; }
+  .home .directory-person,.home .directory-person__photo { min-height:300px; }
+  .home .directory-person__body { padding:20px; }
+  .home .home-foot__grid { grid-template-columns:1fr 1fr; }
+  .home .home-foot__brand { grid-column:1/-1; }
+  .home .home-foot__grid > div:nth-child(2) { grid-column:auto; }
+  .home .home-foot__grid > div:nth-child(2) ul { columns:1; }
+  .home .home-foot__bottom { gap:18px; flex-wrap:wrap; }
+  .home .home-dock { width:100%; max-width:none; padding-inline:10px; }
+  .home .home-bottomnav { gap:0; padding:8px 5px; max-width:560px; }
+  .home .home-bottomnav__tab { min-width:0; font-size:12px; gap:5px; padding-inline:2px; }
+  .home .home-bottomnav__tab span { white-space:normal; line-height:1.25; text-align:center; }
+  .home .home-bottomnav__center span { font-size:12px; }
+  .home .home-dock__sheet-item { font-size:15px; }
+  .home .home-faq__q { font-size:16px; line-height:1.65; }
+  .home .home-faq__a { font-size:16px; line-height:1.8; }
+  .home .wa-fab { left:auto; right:16px; }
+  .auth { padding-top:90px; }
+  :lang(si) .home .home-hero__display { font-size:clamp(30px,7vw,48px); }
+}
+@media(max-width:360px) {
+  .home .home-header .home-brand__name b { font-size:18px; }
+  .home .home-header .home-brand { gap:8px; }
+  .home .home-header .home-brand__mark { width:34px; height:34px; }
+  .home .home-header .theme-toggle { width:44px; height:44px; }
+  .home .home-header .lang-toggle button { font-size:13px; padding-inline:4px!important; }
+  .home .directory-person { grid-template-columns:38% minmax(0,1fr); }
+  .home .directory-person__body { padding:17px; }
+  .home .directory-person h2 { font-size:25px; }
+}

@@ -1,0 +1,81 @@
+/* FX layer — section headers and extra motion (Magic UI patterns, ported to
+   plain CSS + Web Animations in MotionEffects; no new dependencies).
+   • eyebrow → pill chip with a pulsing dot and a one-time shine on reveal
+   • headings → words blur in one by one; the last word gets a highlighter
+   Loaded last. Colours come from --accent / --line / --fg so both themes match. */
+
+/* ── eyebrow chip ── */
+.home .home-eyebrow {
+  position: relative; overflow: hidden; isolation: isolate;
+  display: inline-flex; align-items: center; gap: .7em;
+  width: fit-content;
+  padding: .62em 1.1em .62em .9em;
+  border: 1px solid color-mix(in srgb, var(--accent) 28%, var(--line));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 7%, transparent);
+  color: var(--accent-text);
+  font-weight: 600; letter-spacing: .1em; text-transform: uppercase; line-height: 1.2;
+}
+:lang(si) .home .home-eyebrow { letter-spacing: .02em; text-transform: none; }
+.home .home-eyebrow::before {
+  content: ""; width: 6px; height: 6px; flex: none; border-radius: 50%;
+  background: var(--accent);
+}
+/* the shine streak, swept across once by MotionEffects */
+.home .home-eyebrow::after {
+  content: ""; display: block; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: linear-gradient(105deg, transparent 25%, color-mix(in srgb, var(--accent) 22%, transparent) 50%, transparent 75%);
+  transform: translateX(-110%);
+}
+.home .home-hero .home-eyebrow { margin-bottom: 28px; }
+.home .salon-home-reviews .salon-google-reviews .home-eyebrow { color: var(--accent-text); }
+
+/* ── section headings ── */
+.fx-w { display: inline-block; }
+.fx-w--mark { position: relative; isolation: isolate; }
+.fx-w--mark::after {
+  content: ""; position: absolute; z-index: -1; pointer-events: none;
+  left: -.06em; right: -.08em; bottom: .1em; height: .3em;
+  border-radius: .12em;
+  background: color-mix(in srgb, var(--accent) 24%, transparent);
+  transform-origin: left center;
+}
+[data-theme="dark"] .fx-w--mark::after { background: color-mix(in srgb, var(--accent) 42%, transparent); }
+
+@media (prefers-reduced-motion: no-preference) {
+  /* only the hero chip pulses; one small transform/opacity loop runs on the
+     compositor instead of eight box-shadow loops repainting every frame */
+  .home .home-hero .home-eyebrow::before { animation: fx-ping 2.4s ease-in-out infinite; }
+}
+
+@keyframes fx-ping {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%      { transform: scale(.55); opacity: .45; }
+}
+
+/* ── theme switch (see ThemeToggle): no per-element fades mid-switch, and the
+   view transition shows the new theme growing as a circle over the old one ── */
+html[data-theme-switching] *, html[data-theme-switching] *::before, html[data-theme-switching] *::after {
+  transition: none !important;
+}
+::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+::view-transition-old(root) { z-index: 1; }
+::view-transition-new(root) { z-index: 2; }
+
+/* ── language switch: one segmented pill everywhere (header, dock sheet, auth) ── */
+.lang-toggle {
+  display: inline-flex; align-items: center; gap: 2px;
+  padding: 3px; border: 1px solid var(--line); border-radius: 999px; background: var(--bg);
+  transition: opacity .2s ease;
+}
+.lang-toggle[aria-busy] { opacity: .6; }
+.lang-toggle__btn {
+  appearance: none; border: 0; background: transparent; cursor: pointer;
+  min-height: 30px; padding: 6px 12px; border-radius: 999px;
+  font: 600 12.5px/1.1 var(--font-sans); letter-spacing: .02em; color: var(--fg-2);
+  transition: background-color .2s ease, color .2s ease;
+}
+.lang-toggle__btn:hover:not([aria-pressed="true"]):not(:disabled) { color: var(--fg); }
+.lang-toggle__btn[aria-pressed="true"] { background: var(--accent-dark); color: #fff; cursor: default; }
+.lang-toggle__btn:disabled { cursor: progress; }
+.lang-toggle__btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }

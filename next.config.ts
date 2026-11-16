@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
   // Don't advertise the framework in an X-Powered-By header.
   poweredByHeader: false,
   images: {
+    qualities: [75, 85, 95],
     // DiceBear is the avatar fallback for stylists/users (see lib/avatar.ts).
     // Its avatars are SVG, so allow SVG but sandbox it with a strict CSP.
     remotePatterns: [
