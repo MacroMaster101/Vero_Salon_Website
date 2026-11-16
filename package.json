@@ -40,7 +40,7 @@
     "eslint": "^9",
     "eslint-config-next": "^16.3.7",
     "jsdom": "^29.1.1",
-    "supabase": "^2.103.0",
+    "supabase": "^3.1.0",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^4.1.12"
