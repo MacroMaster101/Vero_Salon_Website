@@ -6,6 +6,8 @@ import { useAccountModals, type AccountModal } from '@/components/account/accoun
 import { signOut } from '@/app/admin/actions';
 import { t } from '@/lib/i18n/translations';
 import { LangToggle } from '@/components/theme/lang-toggle';
+import { SITE_NAVIGATION, navigationHref } from '@/lib/site-navigation';
+import { useActiveSection } from '@/components/site/use-active-section';
 
 /* Floating mobile/tablet bottom dock — the single nav surface on small screens
    (the top bar carries the brand only there). Five slots with the Book action
@@ -33,7 +35,6 @@ const MORE_LINKS = [
 // Ids the scroll-spy watches to decide which dock item is active. MUST be in
 // true DOM (top-to-bottom) order — the loop takes the last section whose top
 // has crossed the line, so a mis-ordered list highlights the wrong tab.
-const SPY_IDS = ['top', 'about', 'services', 'how', 'looks', 'team', 'reviews', 'faq', 'visit'];
 
 function Icon({ name }: { name: string }) {
   const common = { width: 22, height: 22, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.8, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
@@ -55,37 +56,22 @@ function Icon({ name }: { name: string }) {
   }
 }
 
-export function BottomNav({ signedIn, accountHref, accountLabel, avatarSrc, locale = 'en' }: {
+export function BottomNav({ signedIn, accountHref, accountLabel, avatarSrc, locale = 'en', currentPath = '/' }: {
   signedIn: boolean;
   accountHref: string | null;   // null → account tab opens the popup menu instead of navigating
   accountLabel: string;
   avatarSrc?: string | null;
   locale?: string;
+  currentPath?: string;
 }) {
   const { openBooking, enabled } = useBooking();
   const { openModal } = useAccountModals();
-  const [active, setActive] = useState<string>('top');
+  const section = useActiveSection(currentPath);
+  const active = currentPath === '/' ? section : SITE_NAVIGATION.find(item => item.href === currentPath)?.id ?? 'top';
   const [moreOpen, setMoreOpen] = useState(false);
   const [acctOpen, setAcctOpen] = useState(false);
   const moreRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const onScroll = () => {
-      let current = 'top';
-      const line = window.innerHeight * 0.4;
-      for (const id of SPY_IDS) {
-        const el = id === 'top' ? null : document.getElementById(id);
-        if (el && el.getBoundingClientRect().top <= line) current = id;
-      }
-      if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4) {
-        current = SPY_IDS[SPY_IDS.length - 1] ?? current;
-      }
-      setActive(current);
-    };
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
 
   // Close the More/Account sheets on outside-click / Escape.
   useEffect(() => {
@@ -123,14 +109,14 @@ export function BottomNav({ signedIn, accountHref, accountLabel, avatarSrc, loca
   return (
     <div className="home-dock" ref={moreRef}>
       {/* ── "More" sheet ── */}
-      <div className={`home-dock__sheet${moreOpen ? ' is-open' : ''}`} role="menu">
+      <div className={`home-dock__sheet${moreOpen ? ' is-open' : ''}`} role="menu" id="mobile-more-menu" aria-hidden={!moreOpen} inert={!moreOpen}>
         <div>
           <LangToggle currentLocale={locale} />
         </div>
         {translatedMoreLinks.map((l) => (
           <a
             key={l.id}
-            href={`#${l.id}`}
+            href={navigationHref(SITE_NAVIGATION.find(item => item.id === l.id) ?? { id:l.id, href:`/#${l.id}` })}
             role="menuitem"
             className={`home-dock__sheet-item${active === l.id ? ' is-active' : ''}`}
             onClick={() => { setMoreOpen(false); setAcctOpen(false); }}
@@ -141,7 +127,7 @@ export function BottomNav({ signedIn, accountHref, accountLabel, avatarSrc, loca
       </div>
 
       {/* ── "Account" sheet (signed-in customers) ── */}
-      <div className={`home-dock__sheet${acctOpen ? ' is-open' : ''}`} role="menu">
+      <div className={`home-dock__sheet${acctOpen ? ' is-open' : ''}`} role="menu" id="mobile-account-menu" aria-hidden={!acctOpen} inert={!acctOpen}>
         <button type="button" role="menuitem" className="home-dock__sheet-item" onClick={() => pickAccount('profile')}>
           {t('Edit profile', locale)}
         </button>
@@ -158,11 +144,11 @@ export function BottomNav({ signedIn, accountHref, accountLabel, avatarSrc, loca
         </form>
       </div>
 
-      <nav className="home-bottomnav" aria-label="Quick navigation">
+      <nav className="home-bottomnav" aria-label={t('Quick navigation', locale)}>
         {translatedLeft.map((tTab) => (
           <a
             key={tTab.id}
-            href={`#${tTab.id}`}
+            href={tTab.id === 'services' ? '/services' : currentPath === '/' ? '#top' : '/'}
             className={`home-bottomnav__tab${active === tTab.id ? ' is-active' : ''}`}
             aria-current={active === tTab.id ? 'page' : undefined}
             onClick={() => { setMoreOpen(false); setAcctOpen(false); }}
@@ -189,6 +175,7 @@ export function BottomNav({ signedIn, accountHref, accountLabel, avatarSrc, loca
           type="button"
           className={`home-bottomnav__tab${moreActive || moreOpen ? ' is-active' : ''}`}
           aria-haspopup="menu"
+          aria-controls="mobile-more-menu"
           aria-expanded={moreOpen}
           onClick={() => { setAcctOpen(false); setMoreOpen((v) => !v); }}
         >
@@ -211,6 +198,7 @@ export function BottomNav({ signedIn, accountHref, accountLabel, avatarSrc, loca
             type="button"
             className={`home-bottomnav__tab${acctOpen ? ' is-active' : ''}`}
             aria-haspopup="menu"
+            aria-controls="mobile-account-menu"
             aria-expanded={acctOpen}
             onClick={() => { setMoreOpen(false); setAcctOpen((v) => !v); }}
           >

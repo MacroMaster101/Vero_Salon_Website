@@ -3,9 +3,21 @@ import Script from 'next/script';
 import { cookies } from 'next/headers';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Analytics } from '@vercel/analytics/next';
-import { poppins, fraunces } from '@/lib/fonts';
+import { geist, manrope, sinhala } from '@/lib/fonts';
 import { env } from '@/lib/env';
+import { LocaleProvider } from '@/lib/i18n/locale-context';
 import './globals.css';
+import './redesign.css';
+import './salon-pages.css';
+import './home-refresh.css';
+import './motion.css';
+import './standalone-pages.css';
+import './detail-pages.css';
+import './locations.css';
+import './responsive.css';
+import './type-scale.css';
+import './section-polish.css';
+import './fx.css';
 
 // Runs before paint to set data-theme and avoid a flash (vero-theme key).
 const themeScript = `(function(){try{var t=localStorage.getItem('vero-theme');if(!t){t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','light');}})();`;
@@ -84,10 +96,10 @@ export const viewport: Viewport = {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const cookieStore = await cookies();
-  const locale = cookieStore.get('locale')?.value || 'en';
+  const locale = cookieStore.get('locale')?.value === 'si' ? 'si' : 'en';
 
   return (
-    <html lang={locale} suppressHydrationWarning>
+    <html lang={locale} data-scroll-behavior="smooth" suppressHydrationWarning>
       <head>
         <Script id="vero-theme" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: themeScript }} />
         {/* Schema.org structured data — tells Google this is a salon booking application */}
@@ -96,8 +108,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           dangerouslySetInnerHTML={{ __html: STRUCTURED_DATA }}
         />
       </head>
-      <body className={`${poppins.variable} ${fraunces.variable}`}>
-        {children}
+      <body className={`${geist.variable} ${manrope.variable} ${sinhala.variable}`}>
+        <LocaleProvider locale={locale}>{children}</LocaleProvider>
         <SpeedInsights />
         <Analytics />
       </body>

@@ -12,7 +12,7 @@ export function whatsappNumber(phone: string): string | null {
 export function WhatsAppFab({ phone, locale }: { phone: string; locale: string }) {
   const number = whatsappNumber(phone);
   if (!number) return null;
-  const text = encodeURIComponent("Hi Vero Salon, I'd like to book an appointment!");
+  const text = encodeURIComponent(t("Hi Vero Salon, I'd like to book an appointment!", locale));
   const label = t('Message on WhatsApp', locale);
   return (
     <a

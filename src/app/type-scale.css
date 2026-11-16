@@ -1,0 +1,235 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   Fluid type scale — loaded LAST so it settles every public page.
+   Each tier has a readable floor on small phones and keeps growing through
+   tablets, laptops and large monitors (caps reached around 2560px), so text is
+   smaller on small screens and bigger on big ones, never tiny anywhere.
+
+     tier        360px   768px   1024px  1440px  1920px  2560px
+     label        12      12      12.5    13.4    14.3    15.6
+     small        13      13      13.3    14.2    15.2    16.6
+     body         15      15      15.6    16.8    18.3    20.2
+     h3           17      18.2    19.6    21.9    24.6    28
+     h2-sub       22      25      28.3    33.7    40      46
+     h2           28      30      34.3    41.2    49.3    60
+   ───────────────────────────────────────────────────────────────────────────── */
+.home, .auth {
+  --fs-label: clamp(12px, .2vw + 10.5px, 16px);
+  --text-small: clamp(13px, .22vw + 11px, 17px);
+  --text-body: clamp(15px, .3vw + 12.5px, 21px);
+  --fs-h3: clamp(17px, .55vw + 14px, 28px);
+  --fs-h2-sub: clamp(22px, 1.3vw + 15px, 46px);
+  --fs-h2: clamp(28px, 1.7vw + 17px, 60px);
+}
+/* Sinhala glyphs are wider and taller — keep headings a step smaller so lines don't break awkwardly */
+:lang(si) .home, :lang(si) .auth {
+  --fs-h3: clamp(16px, .45vw + 13.5px, 24px);
+  --fs-h2-sub: clamp(20px, 1vw + 14px, 38px);
+  --fs-h2: clamp(24px, 1.35vw + 15px, 50px);
+}
+
+/* ── labels: brand tagline, captions, tags, counters (were 7–11px) ── */
+.home .home-brand__name small,
+.home .home-header.is-scrolled .home-brand__name small,
+.home .salon-google-reviews > div > span,
+.home .salon-home-reviews .salon-google-reviews .home-eyebrow,
+.home .salon-look-tile__caption small,
+.home .salon-look-tile__caption > span:last-child,
+.home .salon-gallery__caption > span,
+.home .detail-lookbook .salon-gallery__caption > span,
+.home .detail-story-banner figcaption,
+.home .detail-facts span,
+.home .legal-index__n,
+.home .salon-weekly-hours > summary,
+.home .location-full-hours > summary,
+.auth .eyebrow { font-size: var(--fs-label); line-height: 1.6; }
+/* brand tagline sits in a height-capped box (redesign.css) — keep it on one tight line */
+.home .home-brand__name small,
+.home .home-header.is-scrolled .home-brand__name small { line-height: 1.25; max-height: none; white-space: nowrap; }
+
+/* ── secondary buttons that had shrunk to 10–11px ── */
+.home .home-visit__actions .home-btn,
+.home .salon-home-visit .home-visit__actions a:last-child { font-size: clamp(14px, .2vw + 12px, 18px); }
+
+/* ── mobile/tablet dock: labels were 9.5–10.5px between 768 and 1279px ── */
+.home .home-bottomnav__tab,
+.home .home-bottomnav__center span { font-size: 12px; }
+
+/* ── body copy that was pinned at 11–13px ── */
+.home .salon-home-reviews .salon-google-reviews p,
+.home .salon-google-reviews p { font-size: var(--text-body); line-height: 1.8; }
+
+/* ── h3 tier: step titles, FAQ questions, footer column titles ── */
+.home .home-step h3,
+.home .salon-home-guide h3 { font-size: var(--fs-h3); line-height: 1.35; }
+.home .home-faq__q,
+.home .salon-home-faq .home-faq__q { font-size: clamp(16px, .3vw + 13.5px, 21px); line-height: 1.6; }
+.home .home-faq__a { font-size: var(--text-body); line-height: 1.8; }
+.home.home--studio .home-foot h3 { font-size: var(--text-small); font-weight: 600; }
+
+/* ── h2-sub tier: card / panel headings that were frozen at 25–35px ── */
+.home .salon-home-reviews .salon-google-reviews h2,
+.home .home-cta h2,
+.home.home--inner .home-cta h2,
+.home .detail-help h2,
+.home .detail-story-links h2,
+.home .detail-visit-steps h2,
+.home .directory-person h2,
+.home .location-page-info h2 { font-size: var(--fs-h2-sub); line-height: 1.3; }
+
+/* ── h2 tier: section titles on inner pages ── */
+.home .detail-story-body h2,
+.home .detail-visit-questions h2 { font-size: var(--fs-h2); line-height: 1.25; }
+.home .detail-facts strong { font-size: clamp(26px, 1.4vw + 17px, 52px); }
+.home.home--studio :is(.home-h,.salon-home-services .home-h,.salon-home-story .home-h,.salon-look-intro .home-h,.salon-home-guide__intro .home-h) { font-size: var(--fs-h2); }
+
+/* ── rating figure scales with the card ── */
+.home .salon-home-reviews .salon-google-reviews strong { font-size: clamp(44px, 2.6vw + 30px, 96px); }
+
+/* ── header: grows on big monitors only (the row is already tight at 1280–1600px) ── */
+@media (min-width: 1601px) {
+  .home .home-header .home-nav a { font-size: clamp(14px, .4vw + 6.5px, 18px); }
+  .home .home-header :is(.home-btn, .nav__cta, .lang-toggle button) { font-size: clamp(14px, .3vw + 9px, 17px); }
+  .home .home-header .home-brand__name b { font-size: clamp(22px, .4vw + 15px, 28px); }
+}
+
+/* ── legal pages ── */
+.home .legal-h { font-size: var(--fs-h2-sub); }
+.home .legal-index a { font-size: var(--text-small); }
+
+@media (max-width: 767px) {
+  /* keep the header row on one line on 360px phones */
+  .home .home-header .home-brand__name small { font-size: 12px; }
+  .home .home-step h3 { margin-top: 16px; }
+}
+@media (max-width: 480px) {
+  /* rating card: stack instead of squeezing copy into a ~170px column */
+  .home .salon-home-reviews .salon-google-reviews { grid-template-columns: 1fr; gap: 20px; }
+  .home .salon-home-reviews .salon-google-reviews > div:first-child { border-right: 0; padding-right: 0; border-bottom: 1px solid var(--line); padding-bottom: 20px; }
+  .home .salon-home-reviews .salon-google-reviews > a { grid-column: 1; }
+}
+
+/* Sinhala dock labels were forced to 8.5–9.5px (!important in globals.css) */
+:lang(si) .home .home-bottomnav__tab span { font-size: 11.5px !important; }
+:lang(si) .home .home-bottomnav__center span { font-size: 11px !important; padding: 0 2px; }
+
+/* ═════════════════════════════════════════════════════════════════════════════
+   BIG SCREENS (> 1920px): scale the 1920px design up in proportion.
+   --u is a "design pixel": 1px at 1920 → 1.25px at 2560 → 1.75px at 3840 (4K).
+   Text, header, buttons, spacing and media heights all grow by the same factor,
+   and content is capped at the scaled 1920 width, so every section keeps the
+   proportions (and the screen-height fit) it has on a regular monitor.
+   (CSS `zoom` was tried and rejected: it double-scales vw units and overflows.)
+   ═════════════════════════════════════════════════════════════════════════════ */
+@media (min-width: 1921px) {
+  .home, .auth, :lang(si) .home, :lang(si) .auth {
+    --u: calc(.25px + 100vw * .75 / 1920);
+    --fs-label: calc(var(--u) * 14.3);
+    --text-small: calc(var(--u) * 15.2);
+    --text-body: calc(var(--u) * 18.3);
+    --text-card: calc(var(--u) * 28.2);
+    --fs-h3: calc(var(--u) * 24.6);
+    --fs-h2-sub: calc(var(--u) * 40);
+    --fs-h2: calc(var(--u) * 49.3);
+    --home-edge: calc(var(--u) * 57.6);
+    --home-pad: calc(var(--u) * 100);
+    --home-gap: calc(var(--u) * 22);
+    --home-gap-lg: calc(var(--u) * 64);
+  }
+  :lang(si) .home, :lang(si) .auth {
+    --fs-h3: calc(var(--u) * 22);
+    --fs-h2-sub: calc(var(--u) * 33);
+    --fs-h2: calc(var(--u) * 41);
+  }
+
+  /* content width: the 1920 layout, scaled, centred */
+  .home .home-wrap,
+  .home .legal-wrap,
+  .home .home-header .home-header__inner,
+  .home .home-header.is-scrolled .home-header__inner { max-width: calc(var(--u) * 1912); margin-inline: auto; }
+
+  /* header */
+  .home .home-header .home-header__inner,
+  .home .home-header.is-scrolled .home-header__inner { height: calc(var(--u) * 78); }
+  .home .home-brand__mark, .home .home-header.is-scrolled .home-brand__mark { width: calc(var(--u) * 43); height: calc(var(--u) * 43); }
+  .home .home-brand__mark svg { width: 60%; height: 60%; }
+  .home .home-header .home-brand__name b { font-size: calc(var(--u) * 24); }
+  .home .home-header .home-nav a { font-size: calc(var(--u) * 14.2); }
+  .home .home-header :is(.home-btn, .nav__cta, .lang-toggle button) { font-size: calc(var(--u) * 14.8); }
+  .home .home-header .theme-toggle { width: calc(var(--u) * 42); height: calc(var(--u) * 42); }
+
+  /* buttons and text links */
+  .home.home--studio .home-btn,
+  .home .home-visit__actions .home-btn,
+  .home .salon-home-visit .home-visit__actions a:last-child { font-size: calc(var(--u) * 15.8); padding: calc(var(--u) * 16) calc(var(--u) * 23); border-radius: calc(var(--u) * 10); min-height: calc(var(--u) * 44); }
+  .home.home--studio :is(.home-link, .salon-section-link, .home-svc__cat, .home-svc__aud, .directory-toolbar button, .salon-search > span, .salon-search input, .home-location-tabs button, .location-jump-links a, .location-page-actions .home-btn) { font-size: calc(var(--u) * 15.5); }
+  .home main :is(.home-svc__cat, .home-svc__aud, .directory-toolbar button, .salon-gallery-filters button, .home-location-tabs button) { min-height: calc(var(--u) * 44); }
+
+  /* page titles */
+  .home .home-hero__display { font-size: calc(var(--u) * 109.4); }
+  :lang(si) .home .home-hero__display { font-size: calc(var(--u) * 65); }
+  .home .detail-heading h1, .home .detail-services .detail-heading h1 { font-size: calc(var(--u) * 77.2); }
+  :lang(si) .home .detail-heading h1 { font-size: calc(var(--u) * 61.8); }
+  .home .legal-title { font-size: calc(var(--u) * 64); }
+  .auth__form h1 { font-size: calc(var(--u) * 54); }
+
+  /* fixed-size details */
+  .home .home-faq__q, .home .salon-home-faq .home-faq__q { font-size: calc(var(--u) * 19.3); }
+  .home.home--studio .home-scard__price { font-size: calc(var(--u) * 18.7); }
+  .home .salon-visit-details > div > a { font-size: var(--text-body); }
+  .home .salon-weekly-hours > summary, .home .location-full-hours > summary { font-size: var(--fs-label); }
+  .home .legal-help__call { font-size: calc(var(--u) * 20); }
+  .home .detail-facts strong { font-size: calc(var(--u) * 44); }
+  .home .salon-home-reviews .salon-google-reviews strong { font-size: calc(var(--u) * 80); }
+  .home .salon-google-reviews strong span { font-size: calc(var(--u) * 18); }
+  .home :is(.live-status-badge span, .detail-story-links > a > span, .legal-kicker, .legal-help__sub) { font-size: calc(var(--u) * 13); }
+  .home.home--studio :is(.salon-service-group li, .salon-service-group li > b, .directory-specialties li, .location-full-hours li, .salon-home-visit .home-hours li, .location-hours-list li span) { font-size: calc(var(--u) * 15.2); }
+  .home.home--studio .detail-services .salon-catalog .home-scard__body { grid-template-columns: minmax(0,1fr) calc(var(--u) * 120) calc(var(--u) * 150); }
+
+  /* section rhythm */
+  .home--studio #services.salon-home-services { padding-block: calc(var(--u) * 84); }
+  .salon-home-services .home-head { margin-bottom: calc(var(--u) * 48); }
+  .home .home-foot { padding-top: calc(var(--u) * 55); }
+
+  /* media heights that were capped for 1920-wide layouts */
+  .home .home-hero__grid { min-height: min(calc(var(--u) * 986), calc(100svh - var(--u) * 78)); }
+  .home:not(.home--inner) .salon-home-story .home-story__art { max-height: calc(var(--u) * 650); }
+  .home .salon-home-visit .home-visit__map { min-height: calc(var(--u) * 614); }
+  .home .location-page-map { min-height: calc(var(--u) * 576); }
+  .home .salon-look-tile--feature { min-height: calc(var(--u) * 806); }
+  .home .detail-story-banner > div { height: calc(var(--u) * 576); }
+  .home .directory-person, .home .directory-person__photo { min-height: calc(var(--u) * 442); }
+  .home .directory-person__body { padding: calc(var(--u) * 38); }
+  .home .detail-step-photo { height: calc(var(--u) * 422); }
+  .home .salon-service-image { max-height: calc(var(--u) * 560); }
+
+  /* floating WhatsApp button */
+  .home .wa-fab { width: calc(var(--u) * 56); height: calc(var(--u) * 56); }
+  .home .wa-fab svg { width: 50%; height: 50%; }
+}
+
+/* ── WhatsApp button ──
+   • rings pulse three times to draw the eye, then rest (was infinite)
+   • wherever the bottom dock shows (≤1279px) it sits just above the dock's
+     right edge, and tucks away while scrolling down (MotionEffects) so it
+     never covers prices or headings */
+.wa-fab__pulse::before, .wa-fab__pulse::after { animation-iteration-count: 3; }
+.wa-fab { transition: transform .35s cubic-bezier(.16,1,.3,1), opacity .25s ease, box-shadow .3s ease; }
+.wa-fab.is-tucked, .wa-fab.is-hidden { opacity: 0; transform: translateY(18px) scale(.7); pointer-events: none; }
+@media (max-width: 1023px) {
+  /* tablets: the dock is a centred pill, so the button sits in the free corner, level with it */
+  .home .wa-fab, .wa-fab {
+    left: auto; right: 24px;
+    bottom: calc(22px + env(safe-area-inset-bottom));
+    width: 50px; height: 50px;
+  }
+  .wa-fab svg { width: 25px; height: 25px; }
+  .wa-fab__label { display: none; }
+}
+@media (max-width: 767px) {
+  /* phones: the dock spans the width, so stack just above its right end */
+  .home .wa-fab, .wa-fab { right: 16px; bottom: calc(96px + env(safe-area-inset-bottom)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wa-fab { transition: opacity .15s linear; }
+  .wa-fab.is-tucked, .wa-fab.is-hidden { transform: none; }
+}

@@ -5,7 +5,7 @@
   --bg:#FFFFFF; --bg-2:#F5F5F5; --surface:#FFFFFF;
   --accent:#FF3333; --accent-dark:#CC0000; --accent-tint:#FFE6E6;
   --accent-text:#CC0000;
-  --fg:#000000; --fg-2:#444444; --fg-muted:#777777; --line:#E5E5E5;
+  --fg:#000000; --fg-2:#444444; --fg-muted:#707070; --line:#E5E5E5;
   --error:#FF3333; --success:#00B359; --success-tint:rgba(0,179,89,.12); --gray-text:#777777; --gray-tint:rgba(119,119,119,.12);
   --home-cta-bg:linear-gradient(165deg, var(--accent-tint) 0%, var(--bg-2) 100%); --home-cta-fg:var(--fg); --home-cta-lead:var(--fg-2); --home-cta-btn-color:var(--fg); --home-cta-btn-border:color-mix(in srgb, var(--accent) 45%, var(--line)); --home-cta-btn-hover-border:var(--accent); --home-cta-btn-hover-fg:var(--accent-dark);
   --font-sans: var(--font-poppins), system-ui, -apple-system, sans-serif;
@@ -34,7 +34,7 @@
   --bg:#000000; --bg-2:#0A0A0A; --surface:#121212;
   --accent:#FF3333; --accent-dark:#CC0000; --accent-tint:rgba(255,51,51,.16);
   --accent-text:#FF6666;
-  --fg:#FFFFFF; --fg-2:#A0A0A0; --fg-muted:#666666; --line:#1F1F1F;
+  --fg:#FFFFFF; --fg-2:#A0A0A0; --fg-muted:#8A8A8A; --line:#1F1F1F;
   --error:#FF3333; --success:#00FF80; --success-tint:rgba(0,255,128,.16); --gray-text:#A0A0A0; --gray-tint:rgba(160,160,160,.16);
   --home-cta-bg:linear-gradient(165deg, #000000 0%, #121212 55%, #1a0808 120%); --home-cta-fg:#ffffff; --home-cta-lead:rgba(255, 255, 255, 0.78); --home-cta-btn-color:#ffffff; --home-cta-btn-border:rgba(255,255,255,0.34); --home-cta-btn-hover-border:var(--accent); --home-cta-btn-hover-fg:var(--accent);
   --shadow-card:0 14px 40px -18px rgba(0,0,0,.5);
@@ -48,7 +48,7 @@
   --surface:#FFFFFF;     /* cards, inputs */
   --fg:#000000;          /* primary text */
   --fg-2:#444444;        /* secondary text */
-  --fg-muted:#777777;    /* muted/labels */
+  --fg-muted:#707070;    /* muted/labels */
   --line:#E5E5E5;        /* borders */
   --accent-tint:#FFE6E6; /* active-nav / segment tint */
 }
@@ -58,7 +58,7 @@
   --surface:#121212;
   --fg:#FFFFFF;
   --fg-2:#A0A0A0;
-  --fg-muted:#666666;
+  --fg-muted:#8A8A8A;
   --line:#1F1F1F;
   --accent-tint:rgba(255,51,51,.16);
 }
@@ -1741,7 +1741,7 @@ html, body { overflow-x:clip; }
 /* ── sticky mobile book button ───────────────────────────── */
 .home-mobile-book { display: none; }
 
-/* ── floating bottom dock (mobile + tablet, shown ≤1080px via media query) ──
+/* ── floating bottom dock (mobile + tablet, shown ≤1023px via media query) ──
    A detached, inset pill with five slots and the Book action raised in the
    centre. The .home-dock wrapper is the fixed positioner; .home-bottomnav is the
    visible floating pill; .home-dock__sheet is the "More" popover above it. */
@@ -1828,24 +1828,8 @@ button.home-dock__sheet-item { border: 0; font-family: inherit; cursor: pointer;
 .home-dock__sheet > div:first-child { grid-column: 1 / -1; border-radius: 13px;
   background: var(--bg-2); padding: 6px 12px; }
 
-/* ── scroll reveal — desktop-only ────────────────────────────
-   Hiding content until an IntersectionObserver fires is a desktop luxury: on
-   touch devices a fast flick outruns the observer + 0.8s fade and whole
-   sections read as blank, and horizontal rail cards that start off-screen
-   never intersect at all. Phones/tablets get instant, solid content. */
-@media (min-width: 1081px) {
-  .home-reveal {
-    opacity: 0;
-    transform: translateY(35px) scale(0.96);
-    filter: blur(6px);
-    transition: opacity .8s cubic-bezier(0.16, 1, 0.3, 1), transform .8s cubic-bezier(0.16, 1, 0.3, 1), filter .8s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  .home-reveal.is-in {
-    opacity: 1;
-    transform: none;
-    filter: none;
-  }
-}
+/* Scroll reveals use the Web Animations API in HomeEffects. Their base styles
+   stay fully visible and sharp, including before hydration or without JS. */
 
 /* ── barber pole shine animation ── */
 @keyframes poleShine {
@@ -1895,10 +1879,10 @@ button.home-dock__sheet-item { border: 0; font-family: inherit; cursor: pointer;
   .home-team { grid-template-columns: repeat(2, 1fr); }
   .home-visit__grid { grid-template-columns: 1fr; }
 }
-/* ≤1080px — mobile + tablet: the floating bottom dock is the single nav surface.
+/* ≤1023px — mobile + tablet: the floating bottom dock is the single nav surface.
    The top bar carries the brand + a lone theme toggle only; the inline nav,
    burger, sign-in and book all retire in favour of the dock below. */
-@media (max-width: 1080px) {
+@media (max-width: 1023px) {
   .home-nav { display: none; }
   /* the floating dock is the nav surface from here down */
   .home-dock { display: block; }
@@ -1995,7 +1979,7 @@ button.home-dock__sheet-item { border: 0; font-family: inherit; cursor: pointer;
   .home-brand__name b { font-size: 16px; }
 
   /* Mobile scrolled pill: tighter inset + height than the tablet rule above.
-     (The ≤1080px rule already pins width + opaque background.) */
+     (The ≤1023px rule already pins width + opaque background.) */
   .home-header.is-scrolled .home-header__inner {
     width: calc(100% - 24px);
     margin-inline: 12px;

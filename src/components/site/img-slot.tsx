@@ -38,7 +38,7 @@ export function getFallbackImage(src: string | null | undefined, alt: string): s
   return null;
 }
 
-export function ImgSlot({ src, alt, className, priority = false, sizes = '(max-width: 980px) 100vw, 33vw' }: { src?: string | null; alt: string; className?: string; priority?: boolean; sizes?: string }) {
+export function ImgSlot({ src, alt, className, priority = false, unoptimized = false, sizes = '(max-width: 980px) 100vw, 33vw' }: { src?: string | null; alt: string; className?: string; priority?: boolean; unoptimized?: boolean; sizes?: string }) {
   const [isLoaded, setIsLoaded] = useState(false);
   const imageSrc = getFallbackImage(src, alt);
 
@@ -68,9 +68,11 @@ export function ImgSlot({ src, alt, className, priority = false, sizes = '(max-w
         // loading/fetchPriority explicitly because `priority` alone wasn't always
         // emitting the eager hint through this client wrapper.
         priority={priority}
+        unoptimized={unoptimized}
         loading={priority ? 'eager' : 'lazy'}
         fetchPriority={priority ? 'high' : 'auto'}
         sizes={sizes}
+        quality={priority ? 95 : 85}
         onLoad={() => setIsLoaded(true)}
         style={{
           objectFit: 'cover',

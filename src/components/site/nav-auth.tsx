@@ -47,7 +47,7 @@ export function NavAuth({ profile, userMetadata, locale = 'en' }: { profile: Pro
         className="nav-profile__btn"
         aria-haspopup="menu"
         aria-expanded={open}
-        aria-label="Account menu"
+        aria-label={t('Account menu', locale)}
         onClick={() => setOpen((v) => !v)}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}

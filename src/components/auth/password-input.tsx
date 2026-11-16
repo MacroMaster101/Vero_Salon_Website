@@ -1,6 +1,8 @@
 'use client';
 import { useState } from 'react';
 import { Icon } from '@/components/ui/icon';
+import { useLocale } from '@/lib/i18n/locale-context';
+import { t } from '@/lib/i18n/translations';
 
 // The password field + show/hide eye toggle, shared by every password form
 // (login, signup, reset, change-password). Wrapper/label/meter stay with the
@@ -23,6 +25,7 @@ export function PasswordInput({
   required?: boolean;
 }) {
   const [show, setShow] = useState(false);
+  const locale = useLocale();
   return (
     <div className="pw">
       <input
@@ -38,7 +41,7 @@ export function PasswordInput({
         type="button"
         className="pw__eye"
         onClick={() => setShow((s) => !s)}
-        aria-label={show ? 'Hide password' : 'Show password'}
+        aria-label={t(show ? 'Hide password' : 'Show password', locale)}
       >
         <Icon name={show ? 'eyeOff' : 'eye'} className="ic" size={18} />
       </button>
