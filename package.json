@@ -43,7 +43,7 @@
     "supabase": "^2.103.0",
     "tailwindcss": "^4",
     "typescript": "^5",
-    "vitest": "^4.1.8"
+    "vitest": "^4.1.12"
   },
   "overrides": {
     "postcss": "^8.5.10"
