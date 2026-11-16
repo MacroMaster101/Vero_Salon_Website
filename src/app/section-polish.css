@@ -285,3 +285,21 @@
    page, so the intro starts straight with the eyebrow chip. ── */
 .home .detail-heading { padding-top: 64px; }
 @media (max-width: 767px) { .home .detail-heading { padding-top: 36px; } }
+
+/* ── 16. hero fills the first screen: its height still subtracted the old
+   94px header, but the header is 78px now (rule 10), so a 16px strip of the
+   next band showed under the hero on every desktop screen. ── */
+@media (min-width: 1024px) and (max-width: 1920px) {
+  .home .home-hero__grid { min-height: clamp(620px, calc(100svh - 78px), 1080px); }
+}
+
+/* ── 17. hero → story blend (desktop): the story band starts solid grey so
+   the portrait can stand on it, which left a hard white/grey edge under the
+   hero. The hero's own background now fades into that grey over its last
+   stretch, behind the portrait, so the two sections melt together. ── */
+@media (min-width: 1024px) {
+  .home--studio > main > .home-hero {
+    background: linear-gradient(to bottom,
+      var(--bg) 0, var(--bg) calc(100% - var(--blend) * 2.2), var(--bg-2) 100%);
+  }
+}
