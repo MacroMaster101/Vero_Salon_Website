@@ -5,6 +5,7 @@ import { getAvailability } from '@/app/book/actions';
 import { cancelMyBooking, rescheduleMyBooking } from './booking-actions';
 import { RateBooking } from '@/components/account/rate-booking';
 import { t } from '@/lib/i18n/translations';
+import { useConfirm } from '@/components/ui/confirm-dialog';
 
 export type AccountBooking = {
   id: string;
@@ -72,6 +73,7 @@ export function BookingsList({ bookings, locale = 'en' }: { bookings: AccountBoo
   const [error, setError] = useState<string | null>(null);
   const [busy, startBusy] = useTransition();
   const [now] = useState(() => Date.now());
+  const [ask, dialog] = useConfirm();
 
   function upcomingConfirmed(b: AccountBooking) {
     return b.status === 'confirmed' && new Date(b.starts_at).getTime() >= now;
@@ -81,9 +83,9 @@ export function BookingsList({ bookings, locale = 'en' }: { bookings: AccountBoo
     return b.status === 'completed' && b.stylist_id && !ratedIds.has(b.id);
   }
 
-  function cancel(b: AccountBooking) {
+  async function cancel(b: AccountBooking) {
     const confirmMsg = t('Cancel booking {ref}?', locale).replace('{ref}', b.reference);
-    if (!window.confirm(confirmMsg)) return;
+    if (!(await ask({ message: confirmMsg, confirmLabel: 'Cancel booking' }))) return;
     setError(null);
     startBusy(async () => {
       const res = await cancelMyBooking(b.id);
@@ -96,6 +98,7 @@ export function BookingsList({ bookings, locale = 'en' }: { bookings: AccountBoo
 
   return (
     <div style={{ maxWidth: 560 }}>
+      {dialog}
       {error && <p className="step__hint" style={{ color: 'var(--error)' }}>{error}</p>}
       <ul className="bk-list">
         {items.map((b) => (

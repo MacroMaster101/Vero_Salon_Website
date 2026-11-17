@@ -1,23 +1,22 @@
 'use client';
-import { useId, useMemo, useState, type KeyboardEvent } from 'react';
+import { useId, useState, type KeyboardEvent } from 'react';
 import { money } from '@/lib/format';
 import { servicePhoto } from '@/lib/service-photo';
 import { t } from '@/lib/i18n/translations';
-import type { Service } from '@/lib/supabase/types';
+import type { Service, ServiceCategoryRow } from '@/lib/supabase/types';
 import { BookButton } from '@/components/site/book-button';
 import Link from 'next/link';
 import { ImgSlot } from '@/components/site/img-slot';
+import { Icon, type IconName } from '@/components/ui/icon';
 
 type Audience = 'him' | 'her' | 'both';
-type Category = 'hair' | 'grooming' | 'beauty';
+const SAFE_ICONS = new Set<IconName>(['scissors','user','star','people','tag','clock','eye','calendar','check','grid','pin']);
+const catIcon = (icon: string): IconName => (SAFE_ICONS.has(icon as IconName) ? icon as IconName : 'scissors');
 export function audienceOf(s: Service): Audience {
   const hay = `${s.slug} ${s.name}`.toLowerCase();
   const him = /\b(gents?|men'?s?|man|male|boys?|beard|shave|moustache|barber)\b/.test(hay);
   const her = /\b(ladies|lady|women'?s?|woman|female|girls?|bridal|bride|wedding|mani|pedi|manicure|pedicure|makeup|make-up)\b/.test(hay);
   return him && !her ? 'him' : her && !him ? 'her' : 'both';
-}
-function categoryOf(s: Service): Category {
-  return /beard|shav|moustache/.test(`${s.slug} ${s.name}`.toLowerCase()) ? 'grooming' : s.category;
 }
 const MENS_EDITORIAL: Record<string, string> = {
   'gents-cut': '/images/generated/barber-craft.webp', 'beard': '/images/generated/beard-detail.webp',
@@ -53,19 +52,26 @@ export function ServicePreview({ services, locale }: { services: Service[]; loca
     </article>;
   })}</div>;
 }
-export function ServicesTabs({ services, locale = 'en' }: { services: Service[]; featured?: Service | null; locale?: string }) {
-  const [cat, setCat] = useState<Category>('hair');
+export function ServicesTabs({ services, categories: rows = [], locale = 'en' }: { services: Service[]; categories?: ServiceCategoryRow[]; featured?: Service | null; locale?: string }) {
+  // only categories that have something to book; admins manage them at /admin/services
+  const categories = rows.filter(c => services.some(s => s.category === c.slug))
+    .map(c => ({ id: c.slug, label: c.name, note: c.note, image: c.image_url || '/images/services/hair.png', icon: catIcon(c.icon) }));
+  const [picked, setCat] = useState<string>('');
+  const cat = categories.some(c => c.id === picked) ? picked : (categories[0]?.id ?? '');
   const [aud, setAud] = useState<Audience>('both');
   const [query, setQuery] = useState('');
+  const [view, setView] = useState<'list' | 'grid'>('list');
   const id = useId();
-  const categories: { id: Category; label: string }[] = [{ id:'hair',label:'Hair & styling' },{ id:'grooming',label:'Beard & grooming' },{ id:'beauty',label:'Beauty & bridal' }];
+  const current = categories.find(c => c.id === cat) ?? categories[0];
+  const inCategory = services.filter(s => s.category === cat);
+  const fromPrice = inCategory.length ? Math.min(...inCategory.map(s => s.price_lkr)) : null;
   const audiences: { id: Audience; label: string }[] = [{ id:'both',label:'Everyone' },{ id:'him',label:'For him' },{ id:'her',label:'For her' }];
-  const list = useMemo(() => services.filter(s => {
-    if (categoryOf(s) !== cat || (aud !== 'both' && audienceOf(s) !== 'both' && audienceOf(s) !== aud)) return false;
+  const list = services.filter(s => {
+    if (s.category !== cat || (aud !== 'both' && audienceOf(s) !== 'both' && audienceOf(s) !== aud)) return false;
     return `${s.name} ${s.description ?? ''} ${t(s.name, locale)} ${t(s.description ?? '', locale)}`.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase());
-  }), [services, cat, aud, query, locale]);
+  });
   function onTabKey(event: KeyboardEvent<HTMLButtonElement>, index: number) {
-    const next = event.key === 'ArrowRight' ? (index+1)%categories.length : event.key === 'ArrowLeft' ? (index+categories.length-1)%categories.length : event.key === 'Home' ? 0 : event.key === 'End' ? categories.length-1 : null;
+    const next = (event.key === 'ArrowRight' || event.key === 'ArrowDown') ? (index+1)%categories.length : (event.key === 'ArrowLeft' || event.key === 'ArrowUp') ? (index+categories.length-1)%categories.length : event.key === 'Home' ? 0 : event.key === 'End' ? categories.length-1 : null;
     if(next === null) return;
     const category = categories[next];
     if (!category) return;
@@ -73,12 +79,34 @@ export function ServicesTabs({ services, locale = 'en' }: { services: Service[];
     (event.currentTarget.parentElement?.querySelectorAll('button')[next] as HTMLButtonElement | undefined)?.focus();
   }
   return <div className="home-svc salon-catalog">
-    <div className="salon-catalog__toolbar"><div className="home-svc__cats" role="tablist" aria-label={t('Service category',locale)}>{categories.map((category,index) => <button key={category.id} type="button" role="tab" id={`${id}-${category.id}`} aria-controls={`${id}-panel`} tabIndex={cat === category.id ? 0 : -1} aria-selected={cat===category.id} className={`home-svc__cat${cat===category.id?' is-on':''}`} onClick={()=>setCat(category.id)} onKeyDown={event=>onTabKey(event,index)}>{t(category.label,locale)}</button>)}</div>
-      <label className="salon-search"><span>{t('Find a service',locale)}</span><input type="search" value={query} onChange={e=>setQuery(e.target.value)} placeholder={t('Search cuts, colour, care…',locale)} /></label>
+    {/* category switches on the left, the chosen category's photo on the right */}
+    <div className="salon-catalog__hero">
+      <div className="home-svc__cats salon-catalog__switch" role="tablist" aria-orientation="vertical" aria-label={t('Service category',locale)} style={{ ['--cols' as string]: categories.length <= 3 ? categories.length : categories.length === 4 ? 2 : 3 }}>{categories.map((category,index) => { const on = cat===category.id; const count = services.filter(s=>s.category===category.id).length; return <button key={category.id} type="button" role="tab" id={`${id}-${category.id}`} aria-controls={`${id}-panel`} tabIndex={on ? 0 : -1} aria-selected={on} className={`home-svc__cat salon-switch${on?' is-on':''}`} onClick={()=>setCat(category.id)} onKeyDown={event=>onTabKey(event,index)}>
+        <span className="salon-switch__icon" aria-hidden="true"><Icon name={category.icon} size={18} /></span>
+        <span className="salon-switch__text"><b>{t(category.label,locale)}</b><small>{t(count===1?'{count} service':'{count} services',locale).replace('{count}',String(count))}</small></span>
+        <span className="salon-switch__arrow" aria-hidden="true"><Icon name="arrowLeft" size={16} /></span>
+      </button>; })}</div>
+      {current && <div className="salon-catalog__banner" data-cat={cat} key={`banner-${cat}`}>
+        <div className="salon-catalog__banner-img"><ImgSlot src={current.image} alt={t(current.label,locale)} sizes="(max-width: 767px) 100vw, 70vw" /></div>
+        <div className="salon-catalog__banner-copy">
+          <h2>{t(current.label,locale)}</h2>
+          <p>{t(current.note,locale)}</p>
+          <ul>
+            {fromPrice !== null && <li className="is-price">{t('From {price}',locale).replace('{price}',money(fromPrice))}</li>}
+          </ul>
+        </div>
+      </div>}
     </div>
-    <div className="salon-catalog__filters"><div className="home-svc__auds" role="group" aria-label={t('Who is this for',locale)}>{audiences.map(a=><button key={a.id} type="button" aria-pressed={aud===a.id} className={`home-svc__aud${aud===a.id?' is-on':''}`} onClick={()=>setAud(a.id)}>{t(a.label,locale)}</button>)}</div><p role="status">{t('{count} services',locale).replace('{count}',String(list.length))}</p></div>
+    <div className="salon-catalog__filters"><div className="home-svc__auds" role="group" aria-label={t('Who is this for',locale)}>{audiences.map(a=><button key={a.id} type="button" aria-pressed={aud===a.id} className={`home-svc__aud${aud===a.id?' is-on':''}`} onClick={()=>setAud(a.id)}>{t(a.label,locale)}</button>)}</div>
+      <div className="salon-catalog__right"><label className="salon-search salon-search--inline"><span className="sr-only">{t('Find a service',locale)}</span><Icon name="search" size={16} className="salon-search__icon" /><input type="search" value={query} onChange={e=>setQuery(e.target.value)} placeholder={t('Search cuts, colour, care…',locale)} /></label><p role="status" className="sr-only">{t(list.length===1?'{count} service':'{count} services',locale).replace('{count}',String(list.length))}</p>
+        <div className="salon-view" role="group" aria-label={t('Layout',locale)}>
+          <button type="button" aria-pressed={view==='list'} aria-label={t('List view',locale)} title={t('List view',locale)} onClick={()=>setView('list')}><Icon name="more" size={17} /></button>
+          <button type="button" aria-pressed={view==='grid'} aria-label={t('Card view',locale)} title={t('Card view',locale)} onClick={()=>setView('grid')}><Icon name="grid" size={17} /></button>
+        </div>
+      </div>
+    </div>
     <div role="tabpanel" id={`${id}-panel`} aria-labelledby={`${id}-${cat}`} tabIndex={0}>
-      {list.length ? <div className="home-svc__cards salon-catalog__results" key={`${cat}-${aud}-${query}`}>{list.map(s=><ServiceCard key={s.id} s={s} locale={locale} audience={aud} />)}</div> : <div className="salon-empty"><h3>{t('No services found',locale)}</h3><p>{t('Try another category or clear your search.',locale)}</p><button className="home-btn home-btn--ghost" onClick={()=>{setQuery('');setAud('both');}}>{t('Clear filters',locale)}</button></div>}
+      {list.length ? <div className={`home-svc__cards salon-catalog__results${view==='grid'?' is-grid':''}`} key={`${cat}-${aud}-${query}-${view}`}>{list.map(s=><ServiceCard key={s.id} s={s} locale={locale} audience={aud} />)}</div> : <div className="salon-empty"><h3>{t('No services found',locale)}</h3><p>{t('Try another category or clear your search.',locale)}</p><button className="home-btn home-btn--ghost" onClick={()=>{setQuery('');setAud('both');}}>{t('Clear filters',locale)}</button></div>}
     </div>
   </div>;
 }

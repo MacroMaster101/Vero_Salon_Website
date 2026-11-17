@@ -2,6 +2,7 @@
 // service schema). Server-side validation of admin input before persisting.
 import { z } from 'zod';
 import { slugify } from './service-schema';
+import { isSafeImageUrl } from './image-url';
 
 export const stylistInputSchema = z
   .object({
@@ -9,7 +10,8 @@ export const stylistInputSchema = z
     slug: z.string().trim().default(''),
     role: z.string().trim().default(''),
     tags: z.string().default(''),
-    avatar_url: z.string().trim().default(''),
+    avatar_url: z.string().trim().default('')
+      .refine((v) => v === '' || isSafeImageUrl(v), { message: 'Use an uploaded photo or a /images/… path' }),
     sort_order: z.coerce.number().int().default(0),
     is_active: z.coerce.boolean().default(true),
   })

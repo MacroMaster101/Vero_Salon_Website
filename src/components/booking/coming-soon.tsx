@@ -2,7 +2,7 @@
 
 import { t } from '@/lib/i18n/translations';
 
-export function ComingSoon({ locale = 'en' }: { locale?: string }) {
+export function ComingSoon({ locale = 'en', message = null }: { locale?: string; message?: string | null }) {
   return (
     <div className="home-modal__body home-modal__body--done">
       <div className="confirm" style={{ padding: '24px 8px', textAlign: 'center' }}>
@@ -48,7 +48,7 @@ export function ComingSoon({ locale = 'en' }: { locale?: string }) {
           WebkitTextFillColor: 'transparent',
           display: 'inline-block'
         }}>
-          {t('Online Booking Coming Soon', locale)}
+          {message ? t('Online booking is paused', locale) : t('Online Booking Coming Soon', locale)}
         </h3>
         
         <p style={{ 
@@ -58,7 +58,7 @@ export function ComingSoon({ locale = 'en' }: { locale?: string }) {
           maxWidth: '420px',
           margin: '0 auto 28px'
         }}>
-          {t('We are putting the final touches on our online booking platform. In the meantime, you can schedule your visit by calling us or sending a message on WhatsApp!', locale)}
+          {message ? t(message, locale) : t('We are putting the final touches on our online booking platform. In the meantime, you can schedule your visit by calling us or sending a message on WhatsApp!', locale)}
         </p>
 
         {/* ── Contact Options ── */}

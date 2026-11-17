@@ -5,6 +5,7 @@ import { updatePassword } from './actions';
 import { checkPassword } from '@/lib/auth/password';
 import { AuthShell } from '@/components/auth/auth-shell';
 import { PasswordInput } from '@/components/auth/password-input';
+import { SubmitButton } from '@/components/auth/submit-button';
 import { t } from '@/lib/i18n/translations';
 
 export function ResetForm({ email, locale = 'en' }: { email: string; locale?: string }) {
@@ -58,7 +59,7 @@ export function ResetForm({ email, locale = 'en' }: { email: string; locale?: st
           </div>
 
           {state?.error && <p style={{ color: 'var(--error)', margin: '0 0 12px' }}>{state.error}</p>}
-          <button className="btn btn--primary btn--lg" style={{ width: '100%' }} type="submit" disabled={!check.passed || !matches}>{t('Set new password', locale)}</button>
+          <SubmitButton className="btn btn--primary btn--lg" disabled={!check.passed || !matches} pendingLabel={t('Saving…', locale)}>{t('Set new password', locale)}</SubmitButton>
         </form>
     </AuthShell>
   );

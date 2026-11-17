@@ -9,8 +9,9 @@
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
 export type BookingStatus = 'confirmed' | 'cancelled' | 'completed' | 'no_show';
-export type ServiceCategory = 'hair' | 'beauty';
-export type UserRole = 'user' | 'staff' | 'admin' | 'owner';
+/** a service_categories slug (e.g. 'hair', 'grooming', 'beauty') — admin-editable */
+export type ServiceCategory = string;
+export type UserRole = 'user' | 'staff' | 'receptionist' | 'owner' | 'webdev';
 
 export interface Database {
   public: {
@@ -47,6 +48,29 @@ export interface Database {
           is_featured?: boolean;
         };
         Update: Partial<Database['public']['Tables']['services']['Insert']>;
+        Relationships: [];
+      };
+      service_categories: {
+        Row: {
+          slug: string;
+          name: string;
+          note: string;
+          image_url: string | null;
+          icon: string;
+          sort_order: number;
+          is_active: boolean;
+          created_at: string;
+        };
+        Insert: {
+          slug: string;
+          name: string;
+          note?: string;
+          image_url?: string | null;
+          icon?: string;
+          sort_order?: number;
+          is_active?: boolean;
+        };
+        Update: Partial<Database['public']['Tables']['service_categories']['Insert']>;
         Relationships: [];
       };
       stylists: {
@@ -218,7 +242,7 @@ export interface Database {
       profiles: {
         Row: {
           id: string;
-          role: 'user' | 'staff' | 'admin' | 'owner';
+          role: 'user' | 'staff' | 'receptionist' | 'owner' | 'webdev';
           stylist_id: string | null;
           full_name: string | null;
           email: string | null;
@@ -227,7 +251,7 @@ export interface Database {
         };
         Insert: {
           id: string;
-          role?: 'user' | 'staff' | 'admin' | 'owner';
+          role?: 'user' | 'staff' | 'receptionist' | 'owner' | 'webdev';
           stylist_id?: string | null;
           full_name?: string | null;
           email?: string | null;
@@ -291,6 +315,7 @@ export interface Database {
 
 // Convenience row aliases used throughout the app.
 export type Service = Database['public']['Tables']['services']['Row'];
+export type ServiceCategoryRow = Database['public']['Tables']['service_categories']['Row'];
 export type SiteContentRow = Database['public']['Tables']['site_content']['Row'];
 export type Stylist = Database['public']['Tables']['stylists']['Row'];
 export type BusinessHour = Database['public']['Tables']['business_hours']['Row'];

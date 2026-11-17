@@ -8,7 +8,7 @@ export const slLankaPhone = z.string().transform((s) => s.replace(/[\s-]/g, ''))
 );
 
 export const bookingDetailsSchema = z.object({
-  name: z.string().trim().min(2, 'Please enter your name'),
+  name: z.string().trim().min(2, 'Please enter your name').max(80, 'That name is too long'),
   phone: slLankaPhone,
   email: z.string().trim().min(1, 'Please enter your email').email('That email doesn’t look right'),
   notes: z.string().max(500).default(''),

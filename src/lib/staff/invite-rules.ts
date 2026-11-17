@@ -16,8 +16,8 @@ export type InviteDecision =
 export function inviteDecision(actor: Role, target: InviteTarget): InviteDecision {
   if (target === null) return { kind: 'invite_new' };
   if (target.role === 'staff' && target.stylist_id) return { kind: 'already_staff' };
-  if (target.role === 'admin' || target.role === 'owner') {
-    return { kind: 'refuse', reason: 'That email belongs to an admin or owner account.' };
+  if (target.role === 'receptionist' || target.role === 'owner' || target.role === 'webdev') {
+    return { kind: 'refuse', reason: 'That email belongs to a receptionist, owner or web developer account.' };
   }
   if (!canSetRole(actor, target.role, 'staff')) {
     return { kind: 'refuse', reason: "You can't change that account's role." };

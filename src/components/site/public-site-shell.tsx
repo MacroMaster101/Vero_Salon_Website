@@ -13,21 +13,34 @@ import { LogoIcon } from '@/components/ui/logo-icon';
 import { SiteSurface, PublicNavigation, SiteBottomNav } from '@/components/site/site-surface';
 import { WhatsAppFab } from '@/components/home/whatsapp-fab';
 import { avatarSrc } from '@/lib/avatar';
+import { getSiteSettings } from '@/lib/settings/get';
+import { bookingOpen } from '@/lib/settings/schema';
+import { SiteNotice, siteNoticeText } from '@/components/site/site-notice';
 
 export async function PublicSiteShell({ children }: { children: ReactNode }) {
   const { services, stylists, profile, locale, contact, userMetadata, hasPassword } = await getPublicSite();
+  const settings = await getSiteSettings();
   const enabled = !profile || profile.role === 'user';
-  const accountHref = !profile ? '/login' : profile.role === 'admin' ? '/admin' : profile.role === 'owner' ? '/owner' : profile.role === 'staff' ? '/staff' : null;
-  const accountLabel = profile?.role === 'staff' ? 'Schedule' : profile?.role === 'admin' ? 'Admin' : profile?.role === 'owner' ? 'My shop' : 'Account';
+  const closedMessage = bookingOpen(settings) ? null : settings.bookingMessage;
+  const notice = siteNoticeText(settings);
+  // Signed-in people of every role get the same account popups on the public
+  // pages (profile, booking history, settings); a dashboard is just one item.
+  const accountHref = !profile ? '/login' : null;
+  const accountLabel = 'Account';
+  const dash = !profile || profile.role === 'user' ? null
+    : profile.role === 'receptionist' ? { href: '/admin', label: 'Front desk' }
+    : profile.role === 'webdev' ? { href: '/admin', label: 'Control room' }
+    : profile.role === 'owner' ? { href: '/owner', label: 'My shop' } : { href: '/staff', label: 'My schedule' };
   return (
-      <BookingProvider services={services} stylists={stylists} enabled={enabled} prefill={profile ? { name: profile.fullName ?? '', phone: profile.phone ?? '', email: profile.email ?? '' } : null} locale={locale}>
+      <BookingProvider services={services} stylists={stylists} enabled={enabled} closedMessage={closedMessage} prefill={profile ? { name: profile.fullName ?? '', phone: profile.phone ?? '', email: profile.email ?? '' } : null} locale={locale}>
         <AccountModalsProvider profile={profile} userMetadata={userMetadata} hasPassword={hasPassword} locale={locale}>
           <SiteSurface>
+            {notice && <SiteNotice text={notice} phone={contact.phonePrimary} locale={locale} />}
             <header className="home-header">
               <div className="home-wrap home-header__inner">
                 <Link className="home-brand" href="/" aria-label={t('Vero Salon home', locale)}>
                   <span className="home-brand__mark" aria-hidden="true"><LogoIcon /></span>
-                  <span className="home-brand__name"><b>Vero Salon</b><small>{t('Unisex', locale)} · {t('Pasyala', locale)}</small></span>
+                  <span className="home-brand__name"><b>Vero Salon</b></span>
                 </Link>
                 <PublicNavigation />
                 <div className="home-header__actions">
@@ -43,7 +56,7 @@ export async function PublicSiteShell({ children }: { children: ReactNode }) {
               <div className="home-wrap">
                 <div className="home-foot__grid">
                   <div className="home-foot__brand">
-                    <Link className="home-brand" href="/" aria-label={t('Vero Salon home', locale)}><span className="home-brand__mark" aria-hidden="true"><LogoIcon /></span><span className="home-brand__name"><b>Vero Salon</b><small>{t('Unisex', locale)} · {t('Pasyala', locale)}</small></span></Link>
+                    <Link className="home-brand" href="/" aria-label={t('Vero Salon home', locale)}><span className="home-brand__mark" aria-hidden="true"><LogoIcon /></span><span className="home-brand__name"><b>Vero Salon</b></span></Link>
                     <p>{t(contact.footerBlurb, locale)}</p>
                   </div>
                   <div><h3>{t('Salon', locale)}</h3><ul>{SITE_NAVIGATION.map(item => <li key={item.id}><Link href={item.href}>{t(item.label, locale)}</Link></li>)}</ul></div>
@@ -54,7 +67,7 @@ export async function PublicSiteShell({ children }: { children: ReactNode }) {
               </div>
             </footer>
             <WhatsAppFab phone={contact.phonePrimary} locale={locale} />
-            <SiteBottomNav signedIn={!!profile} accountHref={accountHref} accountLabel={t(accountLabel, locale)} avatarSrc={profile ? avatarSrc(userMetadata, profile.email ?? profile.fullName ?? 'guest') : null} locale={locale} />
+            <SiteBottomNav signedIn={!!profile} accountHref={accountHref} accountLabel={t(accountLabel, locale)} dash={dash ? { href: dash.href, label: t(dash.label, locale) } : null} avatarSrc={profile ? avatarSrc(userMetadata, profile.email ?? profile.fullName ?? 'guest') : null} locale={locale} />
           </SiteSurface>
         </AccountModalsProvider>
       </BookingProvider>

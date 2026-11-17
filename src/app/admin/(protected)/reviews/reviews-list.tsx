@@ -2,6 +2,9 @@
 import { useState, useTransition } from 'react';
 import { StarRow } from '@/components/reviews/star-row';
 import { deleteReview } from './actions';
+import { useT } from '@/lib/i18n/locale-context';
+import { AdminEmpty } from '@/components/admin/admin-title';
+import { useConfirm } from '@/components/ui/confirm-dialog';
 
 export type AdminReview = {
   id: string;
@@ -17,12 +20,14 @@ export type AdminReview = {
 const dateFmt = new Intl.DateTimeFormat('en-LK', { day: 'numeric', month: 'short', year: 'numeric' });
 
 export function ReviewsList({ reviews }: { reviews: AdminReview[] }) {
+  const tr = useT();
   const [items, setItems] = useState<AdminReview[]>(reviews);
   const [error, setError] = useState<string | null>(null);
   const [busy, start] = useTransition();
+  const [ask, dialog] = useConfirm();
 
-  function remove(r: AdminReview) {
-    if (!window.confirm(`Delete this review by ${r.customer_name}? This recomputes ${r.stylistName}'s rating.`)) return;
+  async function remove(r: AdminReview) {
+    if (!(await ask({ message: `${r.customer_name} → ${r.stylistName}: ${tr('Delete this review? The stylist’s rating is recomputed.')}`, confirmLabel: 'Delete' }))) return;
     setError(null);
     start(async () => {
       const res = await deleteReview(r.id);
@@ -31,10 +36,11 @@ export function ReviewsList({ reviews }: { reviews: AdminReview[] }) {
     });
   }
 
-  if (items.length === 0) return <p className="step__hint">No reviews yet.</p>;
+  if (items.length === 0) return <AdminEmpty icon="star" title="No reviews yet.">{tr('Customer reviews appear here after their visit. Reported ones are flagged first.')}</AdminEmpty>;
 
   return (
     <div>
+      {dialog}
       {error && <p className="step__hint" style={{ color: 'var(--error)' }}>{error}</p>}
       <ul className="review-list" style={{ maxWidth: 640 }}>
         {items.map((r) => (
@@ -48,11 +54,11 @@ export function ReviewsList({ reviews }: { reviews: AdminReview[] }) {
               <span className="review__date">{dateFmt.format(new Date(r.created_at))} · ♥ {r.likes_count}</span>
               {r.reports_count > 0 && (
                 <span style={{ color: 'var(--error)', fontWeight: 700 }}>
-                  {r.reports_count} report{r.reports_count === 1 ? '' : 's'}
+                  {r.reports_count} {tr(r.reports_count === 1 ? 'report' : 'reports')}
                 </span>
               )}
               <button type="button" className="btn btn--ghost" disabled={busy} onClick={() => remove(r)} style={{ marginLeft: 'auto', fontSize: 12, padding: '4px 10px' }}>
-                Delete
+                {tr('Delete')}
               </button>
             </div>
           </li>

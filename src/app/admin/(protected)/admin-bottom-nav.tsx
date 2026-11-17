@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Icon, type IconName } from '@/components/ui/icon';
 import { ThemeToggle } from '@/components/theme/theme-toggle';
 import { signOut } from '../actions';
+import { useT } from '@/lib/i18n/locale-context';
 
 export type AdminNavItem = { href: string; label: string; icon: IconName; short?: string };
 
@@ -21,11 +22,20 @@ export function AdminBottomNav({
   primary,
   overflow,
   root = '/admin',
+  account,
+  showTheme = true,
+  extra,
 }: {
   primary: AdminNavItem[];
   overflow: AdminNavItem[];
   root?: string;
+  /** optional "you" card shown at the top of the More sheet */
+  account?: ReactNode;
+  showTheme?: boolean;
+  /** extra control for the bottom row of the More sheet (e.g. language) */
+  extra?: ReactNode;
 }) {
+  const tr = useT();
   const path = usePathname();
   const [moreOpen, setMoreOpen] = useState(false);
 
@@ -49,20 +59,27 @@ export function AdminBottomNav({
       >
         <div className="more-sheet__panel" onClick={(e) => e.stopPropagation()}>
           <div className="more-sheet__grip" />
+          {account && <div className="more-sheet__account" onClick={closeMore}>{account}</div>}
           <nav className="more-sheet__links">
             {overflow.map((i) => (
-              <Link key={i.href} href={i.href} onClick={closeMore}>
-                {i.label}
+              <Link key={i.href} href={i.href} onClick={closeMore} className={isActive(i.href) ? 'is-active' : undefined}>
+                <span className="more-sheet__ic"><Icon name={i.icon} className="ic" /></span>
+                <span>{tr(i.label)}</span>
               </Link>
             ))}
+            <a href="/" target="_blank" rel="noopener noreferrer" onClick={closeMore}>
+              <span className="more-sheet__ic"><Icon name="external" className="ic" /></span>
+              <span>{tr('View site')}</span>
+            </a>
           </nav>
           <div className="more-sheet__row" style={{ marginTop: 18, display: 'flex', gap: 10, alignItems: 'center' }}>
             <form action={signOut} style={{ flex: 1 }}>
               <button className="btn btn--ghost" type="submit" style={{ width: '100%' }}>
-                <Icon name="logout" className="ic" /> Sign out
+                <Icon name="logout" className="ic" /> {tr('Sign out')}
               </button>
             </form>
-            <ThemeToggle />
+            {extra}
+            {showTheme && <ThemeToggle />}
           </div>
         </div>
       </div>
@@ -79,7 +96,7 @@ export function AdminBottomNav({
             className={`bottom-nav__tab${isActive(i.href) ? ' is-active' : ''}`}
           >
             <span className="bottom-nav__icon"><Icon name={i.icon} className="ic-lg" /></span>
-            <span className="bottom-nav__label">{i.short ?? i.label}</span>
+            <span className="bottom-nav__label">{tr(i.short ?? i.label)}</span>
           </Link>
         ))}
         <button
@@ -89,7 +106,7 @@ export function AdminBottomNav({
           aria-expanded={moreOpen}
         >
           <span className="bottom-nav__icon"><Icon name="more" className="ic-lg" /></span>
-          <span className="bottom-nav__label">More</span>
+          <span className="bottom-nav__label">{tr('More')}</span>
         </button>
       </nav>
     </>

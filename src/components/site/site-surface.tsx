@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { HomeEffects } from '@/components/home/home-effects';
 import { MotionEffects } from '@/components/site/motion-effects';
 import { BottomNav } from '@/components/home/bottom-nav';
-import { SITE_NAVIGATION, navigationHref } from '@/lib/site-navigation';
+import { navigationFor, navigationHref } from '@/lib/site-navigation';
 import { useActiveSection } from '@/components/site/use-active-section';
 import { useLocale } from '@/lib/i18n/locale-context';
 import { t } from '@/lib/i18n/translations';
@@ -18,7 +18,7 @@ export function PublicNavigation() {
   const path = usePathname();
   const locale = useLocale();
   const section = useActiveSection(path);
-  return <nav className="home-nav" aria-label={t('Primary navigation',locale)}>{SITE_NAVIGATION.map(item => {
+  return <nav className="home-nav" aria-label={t('Primary navigation',locale)}>{navigationFor(path).map(item => {
     const href = navigationHref(item);
     const current = path === '/' ? item.id === section : item.href === path;
     return <Link key={item.id} href={href} className={current ? 'is-active' : undefined} aria-current={current ? path === '/' ? 'location' : 'page' : undefined}>{t(item.label,locale)}</Link>;

@@ -6,6 +6,7 @@ import { Analytics } from '@vercel/analytics/next';
 import { geist, manrope, sinhala } from '@/lib/fonts';
 import { env } from '@/lib/env';
 import { LocaleProvider } from '@/lib/i18n/locale-context';
+import { ViewAsBar } from '@/components/dev/view-as-bar';
 import './globals.css';
 import './redesign.css';
 import './salon-pages.css';
@@ -110,6 +111,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </head>
       <body className={`${geist.variable} ${manrope.variable} ${sinhala.variable}`}>
         <LocaleProvider locale={locale}>{children}</LocaleProvider>
+        <ViewAsBar />
         <SpeedInsights />
         <Analytics />
       </body>

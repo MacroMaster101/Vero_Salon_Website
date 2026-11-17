@@ -13,7 +13,8 @@ export const env = {
   get resendFrom() { return process.env.RESEND_FROM_EMAIL || 'Vero Salon <onboarding@resend.dev>'; },
   // Optional: salon inbox for cancel/reschedule alerts. Empty string → no salon email.
   get salonNotifyEmail() { return process.env.SALON_NOTIFY_EMAIL || ''; },
-  siteUrl: process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000',
+  siteUrl: process.env.NEXT_PUBLIC_SITE_URL
+    || (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : 'http://localhost:3000'),
   // Optional: SL holiday sync. Empty string when unset (holiday features no-op).
   get googleCalendarKey() { return process.env.GOOGLE_CALENDAR_API_KEY || ''; },
   // Optional: WhatsApp staff alert via Meta Cloud API. All three must be set

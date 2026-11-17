@@ -65,11 +65,13 @@ const sections: LegalSection[] = [
 export default function TermsPage() {
   return (
     <LegalPage
+      icon="calendar"
       kicker="Legal"
       title="Terms of Service"
       lead="The simple terms for booking with Vero Salon and using this website."
       updated="30 June 2026"
       sections={sections}
+      highlights={['No deposit needed', 'Pay at the salon', 'Walk-ins welcome']}
     />
   );
 }

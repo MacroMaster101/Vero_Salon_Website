@@ -56,7 +56,7 @@ function readBlock(key: BlockKey, fd: FormData): Record<string, unknown> {
 }
 
 export async function saveBlock(fd: FormData): Promise<Result> {
-  await requireRole(['admin'], PATH);
+  await requireRole(['webdev'], PATH);
   const key = String(fd.get('key') ?? '') as BlockKey;
   if (!KEYS.includes(key)) return { error: 'Unknown content block' };
 

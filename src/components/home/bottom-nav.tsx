@@ -6,7 +6,7 @@ import { useAccountModals, type AccountModal } from '@/components/account/accoun
 import { signOut } from '@/app/admin/actions';
 import { t } from '@/lib/i18n/translations';
 import { LangToggle } from '@/components/theme/lang-toggle';
-import { SITE_NAVIGATION, navigationHref } from '@/lib/site-navigation';
+import { SITE_NAVIGATION, isHomeOnlyItem, navigationHref } from '@/lib/site-navigation';
 import { useActiveSection } from '@/components/site/use-active-section';
 
 /* Floating mobile/tablet bottom dock — the single nav surface on small screens
@@ -56,8 +56,9 @@ function Icon({ name }: { name: string }) {
   }
 }
 
-export function BottomNav({ signedIn, accountHref, accountLabel, avatarSrc, locale = 'en', currentPath = '/' }: {
+export function BottomNav({ signedIn, accountHref, accountLabel, avatarSrc, dash = null, locale = 'en', currentPath = '/' }: {
   signedIn: boolean;
+  dash?: { href: string; label: string } | null;   // staff/owner/admin dashboard link inside the account sheet
   accountHref: string | null;   // null → account tab opens the popup menu instead of navigating
   accountLabel: string;
   avatarSrc?: string | null;
@@ -99,7 +100,12 @@ export function BottomNav({ signedIn, accountHref, accountLabel, avatarSrc, loca
     label: t(tTab.label, locale),
   }));
 
-  const translatedMoreLinks = MORE_LINKS.map((tLink) => ({
+  // inner pages: drop the homepage-only sections (Reviews, FAQ)
+  const pageLinks = currentPath === '/' ? MORE_LINKS : MORE_LINKS.filter(l => {
+    const item = SITE_NAVIGATION.find(i => i.id === l.id);
+    return item ? !isHomeOnlyItem(item) : false;
+  });
+  const translatedMoreLinks = pageLinks.map((tLink) => ({
     ...tLink,
     label: t(tLink.label, locale),
   }));
@@ -128,6 +134,11 @@ export function BottomNav({ signedIn, accountHref, accountLabel, avatarSrc, loca
 
       {/* ── "Account" sheet (signed-in customers) ── */}
       <div className={`home-dock__sheet${acctOpen ? ' is-open' : ''}`} role="menu" id="mobile-account-menu" aria-hidden={!acctOpen} inert={!acctOpen}>
+        {dash && (
+          <a href={dash.href} role="menuitem" className="home-dock__sheet-item home-dock__sheet-item--dash" onClick={() => setAcctOpen(false)}>
+            {dash.label}
+          </a>
+        )}
         <button type="button" role="menuitem" className="home-dock__sheet-item" onClick={() => pickAccount('profile')}>
           {t('Edit profile', locale)}
         </button>

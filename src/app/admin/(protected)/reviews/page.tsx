@@ -1,6 +1,9 @@
 import { requireRole } from '@/lib/supabase/auth';
 import { createClient } from '@/lib/supabase/server';
 import { ReviewsList, type AdminReview } from './reviews-list';
+import { AdminTitle } from '@/components/admin/admin-title';
+import { getLocale } from '@/app/locale-action';
+import { t } from '@/lib/i18n/translations';
 
 type Row = {
   id: string;
@@ -14,7 +17,8 @@ type Row = {
 };
 
 export default async function AdminReviewsPage() {
-  await requireRole(['admin'], '/admin/reviews');
+  await requireRole(['webdev'], '/admin/reviews');
+  const locale = await getLocale();
   const sb = await createClient();
   const { data } = await sb
     .from('stylist_reviews')
@@ -37,13 +41,10 @@ export default async function AdminReviewsPage() {
   return (
     <div className="apage">
       <div className="ahead">
-        <div>
-          <span className="eyebrow">Moderation</span>
-          <h1 className="ahead__title">Reviews</h1>
-        </div>
+        <AdminTitle icon="star" eyebrow="Moderation" title="Reviews" />
       </div>
       <p className="step__hint" style={{ marginTop: -10, marginBottom: 20 }}>
-        Reported reviews are flagged first. Deleting a review recomputes the stylist’s rating.
+        {t('Reported reviews are flagged first. Deleting a review recomputes the stylist’s rating.', locale)}
       </p>
       <ReviewsList reviews={rows} />
     </div>

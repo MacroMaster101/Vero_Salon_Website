@@ -2,6 +2,9 @@ import { NextResponse, type NextRequest } from 'next/server';
 import type { EmailOtpType } from '@supabase/supabase-js';
 import { createClient } from '@/lib/supabase/server';
 import { safeNext } from '@/lib/auth/redirect';
+import { getProfile } from '@/lib/supabase/auth';
+import { getSiteSettings } from '@/lib/settings/get';
+import { customerAccessOpen, isTeam } from '@/lib/settings/schema';
 
 // Email-link landing that works across browsers/devices: the Supabase email
 // templates link here with a token_hash, and we verify it server-side (no
@@ -16,7 +19,15 @@ export async function GET(request: NextRequest) {
   if (tokenHash && type) {
     const sb = await createClient();
     const { error } = await sb.auth.verifyOtp({ type, token_hash: tokenHash });
-    if (!error) return NextResponse.redirect(new URL(next, url.origin));
+    if (!error) {
+      // Web settings: customer sign-in off (or maintenance) — same gate as /auth/callback.
+      const profile = await getProfile();
+      if (profile && !isTeam(profile.role) && !customerAccessOpen(await getSiteSettings())) {
+        await sb.auth.signOut();
+        return NextResponse.redirect(new URL('/login?error=paused', url.origin));
+      }
+      return NextResponse.redirect(new URL(next, url.origin));
+    }
   }
   return NextResponse.redirect(new URL('/forgot-password?error=expired', url.origin));
 }

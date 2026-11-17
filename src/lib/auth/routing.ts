@@ -14,7 +14,6 @@ export function routeForSession(
   if (next) return next;                              // explicit ?next= wins
   if (role === 'owner') return '/owner';              // owner → owner dashboard
   if (role === 'staff' && stylistId) return '/staff'; // staff → today
-  if (role === 'admin') return '/admin';              // admin → dashboard (app parity)
-  if (isGuest) return '/book';                        // guest → book
+  if (role === 'receptionist' || role === 'webdev') return '/admin';       // front desk / web dev → console
   return '/';                                         // signed-in user → home (app parity)
 }

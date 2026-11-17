@@ -1,5 +1,8 @@
+import type { Metadata } from 'next';
 import { ForgotForm } from './forgot-form';
 import { cookies } from 'next/headers';
+
+export const metadata: Metadata = { robots: { index: false, follow: false } };
 
 export default async function ForgotPasswordPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
   const sp = await searchParams;

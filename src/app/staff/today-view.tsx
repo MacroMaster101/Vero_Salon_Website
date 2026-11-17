@@ -5,17 +5,19 @@ import {
   applyStatus, applyReschedule, serviceLabel, nextUp, completionPercent,
   type StaffBooking, type AdminBookingStatus,
 } from '@/lib/staff/view';
+import { AdminTitle, AdminEmpty } from '@/components/admin/admin-title';
+import { useT } from '@/lib/i18n/locale-context';
 
 const timeFmt = new Intl.DateTimeFormat('en-LK', { timeZone: 'Asia/Colombo', hour: 'numeric', minute: '2-digit', hour12: true });
 
 export function TodayView({
-  initialBookings, services, dayTitle, showSetup,
+  initialBookings, services, dayTitle,
 }: {
   initialBookings: StaffBooking[];
   services: { id: string; name: string }[];
   dayTitle: string;
-  showSetup?: boolean;
 }) {
+  const tr = useT();
   const [bookings, setBookings] = useState<StaffBooking[]>(initialBookings);
   const onLocalChange = (id: string, status: AdminBookingStatus) =>
     setBookings((list) => applyStatus(list, id, status));
@@ -31,7 +33,7 @@ export function TodayView({
   const rest = bookings.filter((b) => b.id !== next?.id);
   // "Now" divider position: after the last appointment that already started.
   const nowIndex = rest.filter((b) => new Date(b.starts_at).getTime() <= nowMs).length;
-  const nowLabel = `Now ${timeFmt.format(nowMs)}`;
+  const nowLabel = `${tr('Now')} ${timeFmt.format(nowMs)}`;
   const nowMarker = (
     <div className="sd-now" role="separator" aria-label={nowLabel}>
       <span className="sd-now__label">{nowLabel}</span>
@@ -41,24 +43,15 @@ export function TodayView({
 
   return (
     <div className="apage">
-      {showSetup && (
-        <a href="/staff/account" className="sd-setup">
-          <b>Finish your public card</b>
-          <span>Add your title and specialties, then turn on &quot;Show on website&quot; so clients can find you.</span>
-        </a>
-      )}
       <div className="ahead">
-        <div>
-          <span className="eyebrow">Staff desk</span>
-          <h1 className="ahead__title">Today</h1>
-        </div>
+        <AdminTitle icon="grid" eyebrow="Staff desk" title="Today" />
         <span className="sd-day">{dayTitle}</span>
       </div>
 
       <div className="sd-strip" role="group" aria-label="Today at a glance">
-        <div className="sd-strip__item"><b>{bookings.length}</b><span>clients</span></div>
-        <div className="sd-strip__item"><b>{waiting}</b><span>waiting</span></div>
-        <div className="sd-strip__item"><b>{done}</b><span>done</span></div>
+        <div className="sd-strip__item"><b>{bookings.length}</b><span>{tr('clients')}</span></div>
+        <div className="sd-strip__item"><b>{waiting}</b><span>{tr('waiting')}</span></div>
+        <div className="sd-strip__item"><b>{done}</b><span>{tr('done')}</span></div>
         <div className="sd-strip__bar" aria-label={`${pct}% of today completed`}>
           <span style={{ width: `${pct}%` }} />
         </div>
@@ -66,7 +59,7 @@ export function TodayView({
 
       {next ? (
         <section className="sd-next">
-          <h2 className="h-section sd-h">Up next · {timeFmt.format(new Date(next.starts_at))}</h2>
+          <h2 className="h-section sd-h">{tr('Up next')} · {timeFmt.format(new Date(next.starts_at))}</h2>
           <StaffBookingCard
             booking={next} serviceName={serviceLabel(services, next.service_id)} hero
             onLocalChange={onLocalChange} onLocalReschedule={onLocalReschedule}
@@ -74,15 +67,15 @@ export function TodayView({
         </section>
       ) : (
         <section className="sd-next">
-          <h2 className="h-section sd-h">All clear</h2>
-          <p className="step__hint">No remaining confirmed appointments today.</p>
+          <h2 className="h-section sd-h">{tr('All clear')}</h2>
+          <p className="step__hint">{tr('No remaining confirmed appointments today.')}</p>
         </section>
       )}
 
       <section>
-        <h2 className="h-section sd-h">Full day</h2>
+        <h2 className="h-section sd-h">{tr('Full day')}</h2>
         {rest.length === 0 && !next ? (
-          <p className="step__hint">No appointments today. Enjoy the quiet ☕</p>
+          <AdminEmpty icon="calendar" title="No appointments today.">{tr('Enjoy the quiet.')}</AdminEmpty>
         ) : (
           <div className="sd-timeline">
             {rest.map((b, i) => (

@@ -4,7 +4,6 @@ import { useEffect } from 'react';
 /* Dependency-free ports of Magic UI motion patterns, applied by class so
    server-rendered markup stays untouched:
    - magic-card spotlight: cards track the pointer via --mx / --my
-   - number-ticker: [data-ticker] counts up once it scrolls into view
    - text-animate + highlighter: heading words rise in, last word gets marked
    - magnetic primary buttons
    - CSS-only parts live in motion.css and fx.css
@@ -22,8 +21,20 @@ export function MotionEffects({ path }: { path: string }) {
     const fab = () => document.querySelector<HTMLElement>('.wa-fab');
     const set = (tucked: boolean) => fab()?.classList.toggle('is-tucked', tucked);
     const header = () => document.querySelector<HTMLElement>('.home-header');
+    // PC: lift the button above the footer's bottom line once that line is on
+    // screen. (Phones/tablets leave empty room under that line instead.)
+    const lift = () => {
+      const el = fab();
+      const row = document.querySelector<HTMLElement>('.home-foot__bottom');
+      if (!el || !row) return;
+      if (docked.matches) { el.style.setProperty('--fab-lift', '0px'); return; }
+      const base = parseFloat(getComputedStyle(el).bottom) || 0;
+      const overlap = window.innerHeight - base - (row.getBoundingClientRect().top - 16);
+      el.style.setProperty('--fab-lift', `${Math.max(0, Math.round(overlap))}px`);
+    };
     const onScroll = () => {
       const y = window.scrollY;
+      lift();
       header()?.classList.toggle('is-raised', y > 8);
       window.clearTimeout(idle);
       if (!docked.matches) { set(false); lastY = y; return; }
@@ -40,8 +51,9 @@ export function MotionEffects({ path }: { path: string }) {
     const dock = document.querySelector('.home-dock');
     if (dock) sheets.observe(dock, { subtree: true, attributes: true, attributeFilter: ['class'] });
     window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', lift, { passive: true });
     onScroll();
-    return () => { window.removeEventListener('scroll', onScroll); window.clearTimeout(idle); sheets.disconnect(); set(false); };
+    return () => { window.removeEventListener('scroll', onScroll); window.removeEventListener('resize', lift);window.clearTimeout(idle); sheets.disconnect(); set(false); };
   }, [path]);
 
   useEffect(() => {
@@ -62,26 +74,6 @@ export function MotionEffects({ path }: { path: string }) {
       });
     };
     if (fine) document.addEventListener('pointermove', onMove, { passive: true });
-
-    // ── number tickers ──
-    const tickers = new IntersectionObserver(entries => entries.forEach(entry => {
-      if (!entry.isIntersecting) return;
-      tickers.unobserve(entry.target);
-      const el = entry.target as HTMLElement;
-      const target = Number(el.dataset.ticker);
-      if (!Number.isFinite(target)) return;
-      const decimals = (el.dataset.ticker!.split('.')[1] ?? '').length;
-      const start = performance.now();
-      const duration = 1400;
-      const tick = (now: number) => {
-        const p = Math.min(1, (now - start) / duration);
-        const eased = 1 - Math.pow(1 - p, 4);
-        el.textContent = (target * eased).toFixed(decimals);
-        if (p < 1) requestAnimationFrame(tick);
-      };
-      requestAnimationFrame(tick);
-    }), { threshold: 0.6 });
-    document.querySelectorAll<HTMLElement>('[data-ticker]').forEach(el => tickers.observe(el));
 
     // ── headings: words rise in one by one, then the highlighter swipes under
     //    the last word (Magic UI text-animate + highlighter). Web Animations
@@ -146,7 +138,6 @@ export function MotionEffects({ path }: { path: string }) {
       document.removeEventListener('pointerleave', release);
       release();
       cancelAnimationFrame(frame);
-      tickers.disconnect();
       headings.disconnect();
       streamed.disconnect();
       running.forEach(animation => animation.cancel());

@@ -3,6 +3,7 @@ import { useActionState } from 'react';
 import Link from 'next/link';
 import { requestPasswordReset } from './actions';
 import { AuthShell } from '@/components/auth/auth-shell';
+import { SubmitButton } from '@/components/auth/submit-button';
 import { t } from '@/lib/i18n/translations';
 
 export function ForgotForm({ expiredNotice, locale = 'en' }: { expiredNotice?: string | null; locale?: string }) {
@@ -30,9 +31,9 @@ export function ForgotForm({ expiredNotice, locale = 'en' }: { expiredNotice?: s
         {expiredNotice && <p style={{ color: 'var(--error)', marginBottom: 16 }}>{expiredNotice}</p>}
 
         <form action={action}>
-          <div className="field"><label htmlFor="fp-email">{t('Email', locale)}</label><input id="fp-email" name="email" type="email" placeholder="verosalon@gmail.com" autoComplete="email" required /></div>
+          <div className="field"><label htmlFor="fp-email">{t('Email', locale)}</label><input id="fp-email" name="email" type="email" placeholder="you@example.com" autoComplete="email" required /></div>
           {state?.error && <p style={{ color: 'var(--error)', margin: '0 0 12px' }}>{state.error}</p>}
-          <button className="btn btn--primary btn--lg" style={{ width: '100%' }} type="submit">{t('Email me a reset link', locale)}</button>
+          <SubmitButton className="btn btn--primary btn--lg" pendingLabel={t('Sending…', locale)}>{t('Email me a reset link', locale)}</SubmitButton>
         </form>
 
         <p className="auth__alt">{t('Remembered it?', locale)} <Link href="/login">{t('Sign in →', locale)}</Link></p>

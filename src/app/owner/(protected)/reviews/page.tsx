@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { requireRole } from '@/lib/supabase/auth';
 import { ReviewsList, type AdminReview } from '@/app/admin/(protected)/reviews/reviews-list';
 import { Icon } from '@/components/ui/icon';
+import { AdminTitle } from '@/components/admin/admin-title';
 
 type Row = {
   id: string;
@@ -16,7 +17,7 @@ type Row = {
 };
 
 export default async function OwnerReviewsPage() {
-  await requireRole(['owner', 'admin'], '/owner/reviews');
+  await requireRole(['owner'], '/owner/reviews');
   const sb = await createClient();
   const { data } = await sb
     .from('stylist_reviews')
@@ -37,10 +38,10 @@ export default async function OwnerReviewsPage() {
   rows.sort((a, b) => (b.reports_count - a.reports_count) || (b.created_at.localeCompare(a.created_at)));
 
   return (
-    <div>
+    <div className="apage">
       <Link href="/owner" className="oback"><Icon name="arrowLeft" className="ic" /> Home</Link>
-      <h1 className="opage__title">Reviews</h1>
-      <p className="opage__hint">Reported reviews show first. Deleting one updates the stylist&apos;s rating.</p>
+      <div className="ahead"><AdminTitle icon="star" eyebrow="Customers" title="Reviews" /></div>
+      <p className="lead apage__lead">Reported reviews show first. Deleting one updates the stylist&apos;s rating.</p>
       <ReviewsList reviews={rows} />
     </div>
   );

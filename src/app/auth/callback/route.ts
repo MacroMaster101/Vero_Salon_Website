@@ -3,6 +3,8 @@ import { createClient } from '@/lib/supabase/server';
 import { safeNext } from '@/lib/auth/redirect';
 import { routeForSession } from '@/lib/auth/routing';
 import { getProfile } from '@/lib/supabase/auth';
+import { getSiteSettings } from '@/lib/settings/get';
+import { customerAccessOpen, isTeam } from '@/lib/settings/schema';
 
 export async function GET(request: NextRequest) {
   const url = new URL(request.url);
@@ -18,6 +20,12 @@ export async function GET(request: NextRequest) {
   if (!profile) {
     const login = next ? `/login?next=${encodeURIComponent(next)}` : '/login';
     return NextResponse.redirect(new URL(login, url.origin));
+  }
+  // Web settings: customer sign-in off (or maintenance) — sign customers back out.
+  if (!isTeam(profile.role) && !customerAccessOpen(await getSiteSettings())) {
+    const sb = await createClient();
+    await sb.auth.signOut();
+    return NextResponse.redirect(new URL('/login?error=paused', url.origin));
   }
   const target = routeForSession(profile?.role ?? null, profile?.stylistId ?? null, false, next);
   return NextResponse.redirect(new URL(target, url.origin));
