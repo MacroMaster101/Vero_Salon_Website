@@ -2025,3 +2025,13 @@
 @media (prefers-reduced-motion: reduce) {
   .home .detail-services .salon-catalog__switch .salon-switch, .salon-switch__arrow { transition: none; }
 }
+
+/* light theme: the long linear fade turned the black clothing into a tall
+   grey mist on the white page. Same soft fade as dark mode, but shorter and
+   eased (drops fast, then feathers out) so the grey band stays thin. */
+@media (min-width: 1024px) {
+  :root:not([data-theme="dark"]) .home.home--studio > main > .home-hero .salon-hero-rotation {
+    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - var(--blend) * .9), rgba(0,0,0,.5) calc(100% - var(--blend) * .45), rgba(0,0,0,.14) calc(100% - var(--blend) * .16), transparent 100%);
+            mask-image: linear-gradient(to bottom, #000 calc(100% - var(--blend) * .9), rgba(0,0,0,.5) calc(100% - var(--blend) * .45), rgba(0,0,0,.14) calc(100% - var(--blend) * .16), transparent 100%);
+  }
+}
