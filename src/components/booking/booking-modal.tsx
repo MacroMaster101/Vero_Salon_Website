@@ -14,6 +14,7 @@ export function BookingModal({
   stylists,
   prefill,
   locale = 'en',
+  closedMessage = null,
 }: {
   open: boolean;
   onClose: () => void;
@@ -21,6 +22,7 @@ export function BookingModal({
   stylists: Stylist[];
   prefill?: BookingPrefill | null;
   locale?: string;
+  closedMessage?: string | null;
 }) {
   const panelRef = useRef<HTMLDivElement>(null);
   // The wizard reports whether "Back" is available + how to trigger it, so the
@@ -54,7 +56,8 @@ export function BookingModal({
 
   if (!open) return null;
 
-  const isComingSoon = process.env.NEXT_PUBLIC_COMING_SOON === 'true';
+  // Booking switched off in Web settings (live), or the build-time launch flag.
+  const isComingSoon = closedMessage !== null || process.env.NEXT_PUBLIC_COMING_SOON === 'true';
 
   return (
     <div className="home-modal" role="presentation">
@@ -81,7 +84,7 @@ export function BookingModal({
           <button type="button" className="home-modal__close" aria-label={t('Close booking', locale)} onClick={onClose}>×</button>
         </div>
         {isComingSoon ? (
-          <ComingSoon locale={locale} />
+          <ComingSoon locale={locale} message={closedMessage} />
         ) : (
           <BookingWizard
             services={services}

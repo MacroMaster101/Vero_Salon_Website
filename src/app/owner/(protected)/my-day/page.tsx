@@ -4,6 +4,7 @@ import { getMyAssignedBookings } from '@/lib/staff/bookings';
 import { getServices } from '@/lib/queries';
 import { colomboDayWindow, groupByDay, serviceLabel, type StaffBooking } from '@/lib/staff/view';
 import { Icon } from '@/components/ui/icon';
+import { AdminTitle, AdminEmpty } from '@/components/admin/admin-title';
 
 const TZ = 'Asia/Colombo';
 const timeFmt = new Intl.DateTimeFormat('en-LK', { timeZone: TZ, hour: 'numeric', minute: '2-digit', hour12: true });
@@ -30,19 +31,17 @@ function AppointmentCard({ b, services }: { b: StaffBooking; services: { id: str
 }
 
 export default async function OwnerMyDayPage() {
-  const profile = await requireRole(['owner', 'admin'], '/owner/my-day');
+  const profile = await requireRole(['owner'], '/owner/my-day');
   const stylistId = profile.stylistId;
 
   if (!stylistId) {
     return (
-      <div>
+      <div className="apage">
         <Link href="/owner" className="oback"><Icon name="arrowLeft" className="ic" /> Home</Link>
-        <h1 className="opage__title">My day</h1>
-        <p className="opage__hint">
-          Your account isn&apos;t linked to your stylist profile yet, so there&apos;s no chair to show.
-          Ask your admin to link it — an owner can&apos;t set this on their own account
-          (canSetRole and the profiles_protect_privileges trigger both block it).
-        </p>
+        <div className="ahead"><AdminTitle icon="clock" eyebrow="My chair" title="My day" /></div>
+        <AdminEmpty icon="user" title="Not linked to a stylist yet">
+          Your account isn&apos;t linked to your stylist profile yet, so there&apos;s no chair to show. Ask your web developer to link it.
+        </AdminEmpty>
       </div>
     );
   }
@@ -58,22 +57,25 @@ export default async function OwnerMyDayPage() {
   const week = groupByDay(upcoming);
 
   return (
-    <div>
+    <div className="apage">
       <Link href="/owner" className="oback"><Icon name="arrowLeft" className="ic" /> Home</Link>
-      <h1 className="opage__title">My day</h1>
-      <p className="opage__hint">{dayTitleFmt.format(new Date())} — your own appointments, not the whole shop&apos;s.</p>
+      <div className="ahead"><AdminTitle icon="clock" eyebrow="My chair" title="My day" /></div>
+      <p className="lead apage__lead">{dayTitleFmt.format(new Date())} — your own appointments, not the whole shop&apos;s.</p>
 
-      {todays.length === 0
-        ? <p className="opage__hint">No appointments for you today.</p>
-        : <ul className="oday">{todays.map((b) => <AppointmentCard key={b.id} b={b} services={svc} />)}</ul>}
+      <section className="asec">
+        <h2 className="asec-title">Today<span className="asec-count">{todays.length}</span></h2>
+        {todays.length === 0
+          ? <AdminEmpty icon="calendar" title="No appointments for you today." />
+          : <ul className="oday">{todays.map((b) => <AppointmentCard key={b.id} b={b} services={svc} />)}</ul>}
+      </section>
 
-      <section style={{ marginTop: 30 }}>
-        <h2 className="h-section" style={{ fontSize: 20, marginBottom: 6 }}>Coming up this week</h2>
+      <section className="asec" style={{ marginTop: 32 }}>
+        <h2 className="asec-title">Coming up this week<span className="asec-count">{upcoming.length}</span></h2>
         {week.length === 0
-          ? <p className="opage__hint">Nothing booked for you in the next 7 days.</p>
+          ? <AdminEmpty icon="clock" title="Nothing booked for you in the next 7 days." />
           : week.map((day) => (
               <div key={day.dayKey} style={{ marginTop: 14 }}>
-                <p className="opage__hint" style={{ margin: '0 0 4px', fontWeight: 600 }}>{day.dayLabel}</p>
+                <p className="oday__day">{day.dayLabel}</p>
                 <ul className="oday">{day.items.map((b) => <AppointmentCard key={b.id} b={b} services={svc} />)}</ul>
               </div>
             ))}

@@ -5,6 +5,10 @@ import { safeNext } from '@/lib/auth/redirect';
 import { env } from '@/lib/env';
 import { routeForSession } from '@/lib/auth/routing';
 import { getProfile } from '@/lib/supabase/auth';
+import { getSiteSettings } from '@/lib/settings/get';
+import { customerAccessOpen, isTeam } from '@/lib/settings/schema';
+
+const PAUSED = 'Customer sign-in is paused right now. Please call us to book.';
 
 export async function signInWithGoogle(formData: FormData): Promise<void> {
   const next = safeNext(String(formData.get('next') ?? '')) ?? '';
@@ -23,5 +27,10 @@ export async function signInWithPassword(_prev: unknown, formData: FormData): Pr
   const { error } = await sb.auth.signInWithPassword({ email, password });
   if (error) return { error: error.message };
   const profile = await getProfile();
+  // Web settings: customer sign-in off (or maintenance) — the team still gets in.
+  if (!isTeam(profile?.role) && !customerAccessOpen(await getSiteSettings())) {
+    await sb.auth.signOut();
+    return { error: PAUSED };
+  }
   redirect(routeForSession(profile?.role ?? null, profile?.stylistId ?? null, false, explicitNext));
 }

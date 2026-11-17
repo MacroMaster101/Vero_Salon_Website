@@ -79,7 +79,9 @@ export const contactSchema = z.object({
     .default(DEFAULT_MAP_EMBED),
   phonePrimary: z.string().trim().default('077 369 9620'),
   phoneOther: z.string().trim().default('071 094 4410 · 075 095 3004'),
-  facebookUrl: z.string().trim().default('https://www.facebook.com/SaloonRV/'),
+  facebookUrl: z.string().trim()
+    .refine((v) => v === '' || v.startsWith('https://'), { message: 'Use a full https:// link' })
+    .default('https://www.facebook.com/SaloonRV/'),
   footerBlurb: z.string().trim().default(
     'Hair & beauty unisex salon on Attanagalla Road, Pasyala. For him and her.',
   ),

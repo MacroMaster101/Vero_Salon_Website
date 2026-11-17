@@ -15,12 +15,12 @@ import { inviteDecision, shellCardFromEmail, type InviteDecision, type InviteTar
 type Result = { ok: true } | { error: string };
 
 export async function setRole(formData: FormData): Promise<Result> {
-  const actor = await requireRole(['admin', 'owner'], '/admin/people');
+  const actor = await requireRole(['owner'], '/admin/people');
   const id = String(formData.get('id') ?? '');
   const role = String(formData.get('role') ?? 'user');
   const stylistRaw = String(formData.get('stylist_id') ?? '');
   const stylist_id = stylistRaw === '' ? null : stylistRaw;
-  if (!['user', 'staff', 'admin', 'owner'].includes(role)) return { error: 'Invalid role' };
+  if (!['user', 'staff', 'receptionist', 'owner', 'webdev'].includes(role)) return { error: 'Invalid role' };
   const sb = await createClient();
   const { data: target } = await sb.from('profiles').select('role').eq('id', id).single();
   if (!target) return { error: 'User not found' };
@@ -36,7 +36,7 @@ export async function setRole(formData: FormData): Promise<Result> {
 }
 
 export async function adminDeleteUser(formData: FormData): Promise<Result> {
-  await requireRole(['admin'], '/admin/people');
+  const actor = await requireRole(['webdev'], '/admin/people');
   const admin = await getUser();
   const id = String(formData.get('id') ?? '');
   if (!admin || !id) return { error: 'Missing user' };
@@ -44,7 +44,8 @@ export async function adminDeleteUser(formData: FormData): Promise<Result> {
 
   // Capture the linked stylist card before the profile row disappears.
   const sb = await createClient();
-  const { data: target } = await sb.from('profiles').select('stylist_id').eq('id', id).single();
+  const { data: target } = await sb.from('profiles').select('stylist_id, role').eq('id', id).single();
+  if (target?.role === 'webdev' && actor.role !== 'webdev') return { error: "Only the web developer can remove that account." };
 
   const res = await deleteUserData(id);
   if (!res.ok) return { error: `Delete failed (${res.step}): ${res.message}` };
@@ -91,7 +92,7 @@ async function findInviteTarget(
  * other actor (including the service key) for role/stylist_id changes.
  */
 export async function inviteStaff(formData: FormData): Promise<{ ok: true; note?: string } | { error: string }> {
-  const actor = await requireRole(['admin', 'owner'], '/admin/people');
+  const actor = await requireRole(['owner'], '/admin/people');
   const parsed = inviteEmail.safeParse(String(formData.get('email') ?? ''));
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Enter a valid email address' };
   const email = parsed.data;

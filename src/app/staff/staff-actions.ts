@@ -29,7 +29,7 @@ export async function staffSetBookingStatus(
   id: string,
   status: AdminBookingStatus,
 ): Promise<{ ok: true } | { error: string }> {
-  const profile = await requireRole(['staff', 'admin', 'owner'], '/staff');
+  const profile = await requireRole(['staff', 'owner'], '/staff');
   const admin = createAdminClient();
   const { data } = await admin.from('bookings').select(ROW_COLUMNS).eq('id', id).single();
   if (!data) return { error: 'Booking not found.' };
@@ -59,7 +59,7 @@ export async function staffRescheduleOptions(
   date: string,
 ): Promise<{ ok: true; slots: string[] } | { error: string }> {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return { error: 'Pick a valid date.' };
-  const profile = await requireRole(['staff', 'admin', 'owner'], '/staff');
+  const profile = await requireRole(['staff', 'owner'], '/staff');
   const admin = createAdminClient();
   const { data } = await admin.from('bookings').select(ROW_COLUMNS).eq('id', bookingId).single();
   if (!data) return { error: 'Booking not found.' };
@@ -81,7 +81,7 @@ export async function staffRescheduleBooking(
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !/^\d{2}:\d{2}$/.test(time)) {
     return { error: 'Pick a valid date and time.' };
   }
-  const profile = await requireRole(['staff', 'admin', 'owner'], '/staff');
+  const profile = await requireRole(['staff', 'owner'], '/staff');
   const admin = createAdminClient();
   const { data } = await admin.from('bookings').select(ROW_COLUMNS).eq('id', bookingId).single();
   if (!data) return { error: 'Booking not found.' };

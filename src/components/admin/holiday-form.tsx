@@ -1,61 +1,37 @@
 'use client';
-import { useActionState } from 'react';
 import { syncHolidays, addManualHoliday } from '@/app/admin/(protected)/holidays/holiday-actions';
+import { Field } from '@/components/admin/form-kit';
+import { FormModal } from '@/components/admin/form-modal';
+import { useT } from '@/lib/i18n/locale-context';
 
 const THIS_YEAR = new Date().getFullYear();
 const YEARS = [THIS_YEAR, THIS_YEAR + 1];
 
-export function HolidayForms() {
-  const [syncState, syncAction, syncing] = useActionState(
-    async (_prev: unknown, fd: FormData) => syncHolidays(fd),
-    undefined as undefined | { error: string } | { ok: true; count: number },
-  );
-  const [addState, addAction, adding] = useActionState(
-    async (_prev: unknown, fd: FormData) => addManualHoliday(fd),
-    undefined as undefined | { error: string } | { ok: true },
-  );
-
+/** "Sync from Google" + "Add closure" popups (admin Holidays, owner Time off). */
+export function HolidayForms({ fab = true }: { fab?: boolean }) {
+  const tr = useT();
   return (
-    <div className="atwo" style={{ marginTop: 20, alignItems: 'start' }}>
-      {/* Sync from Google */}
-      <form action={syncAction} className="acard">
-        <div className="acard__title">Sync from Google</div>
-        <p className="lead" style={{ margin: '0 0 14px', fontSize: 14 }}>
-          Pull Sri Lankan public &amp; poya holidays for a year. Safe to re-run — it refreshes existing entries.
-        </p>
-        <label className="afield">
-          <span className="alabel">Year</span>
+    <div className="abtn-row">
+      <FormModal trigger={{ label: 'Sync from Google', icon: 'sync' }} title="Sync from Google" icon="sync"
+        subtitle="Pull Sri Lankan public & poya holidays for a year. Safe to re-run — it refreshes existing entries."
+        action={syncHolidays} submitLabel="Sync holidays" pendingLabel="Syncing…"
+        okToast={(r) => `${tr('Synced')} ${'count' in r ? String(r.count) : ''} ${tr('holidays.')}`}>
+        <Field label="Year" required>
           <select name="year" defaultValue={THIS_YEAR} className="ainput">
             {YEARS.map((y) => <option key={y} value={y}>{y}</option>)}
           </select>
-        </label>
-        {syncState && 'error' in syncState && <p className="astatus astatus--err">{syncState.error}</p>}
-        {syncState && 'ok' in syncState && <p className="astatus astatus--ok">Synced {syncState.count} holidays.</p>}
-        <button className="btn btn--primary" disabled={syncing}>
-          {syncing ? 'Syncing…' : 'Sync holidays'}
-        </button>
-      </form>
-
-      {/* Add manual closure */}
-      <form action={addAction} className="acard">
-        <div className="acard__title">Add a closure by hand</div>
-        <p className="lead" style={{ margin: '0 0 14px', fontSize: 14 }}>
-          For a salon-specific closed day that isn&apos;t a public holiday.
-        </p>
-        <label className="afield">
-          <span className="alabel">Date</span>
+        </Field>
+      </FormModal>
+      <FormModal trigger={{ label: 'Add closure', icon: 'plus', variant: fab ? 'fab' : 'primary' }} title="Add a closure by hand" icon="sun"
+        subtitle="For a salon-specific closed day that isn't a public holiday."
+        action={addManualHoliday} submitLabel="Add closure" pendingLabel="Adding…" okToast="Added.">
+        <Field label="Date" required>
           <input name="date" type="date" required className="ainput" />
-        </label>
-        <label className="afield">
-          <span className="alabel">Name</span>
-          <input name="name" type="text" required placeholder="e.g. Staff training day" className="ainput" />
-        </label>
-        {addState && 'error' in addState && <p className="astatus astatus--err">{addState.error}</p>}
-        {addState && 'ok' in addState && <p className="astatus astatus--ok">Added.</p>}
-        <button className="btn btn--primary" disabled={adding}>
-          {adding ? 'Adding…' : 'Add closure'}
-        </button>
-      </form>
+        </Field>
+        <Field label="Name" required>
+          <input name="name" type="text" required placeholder={tr('e.g. Staff training day')} className="ainput" />
+        </Field>
+      </FormModal>
     </div>
   );
 }

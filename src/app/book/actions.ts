@@ -1,4 +1,6 @@
 'use server';
+import { getSiteSettings } from '@/lib/settings/get';
+import { bookingOpen } from '@/lib/settings/schema';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getUser } from '@/lib/supabase/auth';
@@ -107,8 +109,18 @@ export async function createBooking(raw: CreateBookingInput): Promise<CreateResu
   const parsed = createBookingSchema.safeParse(raw);
   if (!parsed.success) return { ok: false, error: 'invalid', message: 'Please check your details.' };
   const input = parsed.data;
+  // Web settings: booking switched off (or maintenance) — never trust the UI alone.
+  const settings = await getSiteSettings();
+  if (!bookingOpen(settings)) return { ok: false, error: 'closed', message: settings.bookingMessage };
 
   const admin = createAdminClient();
+  // Spam guard: the public form is unauthenticated, so cap bookings per phone.
+  const hourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+  const { count: recent } = await admin.from('bookings').select('id', { count: 'exact', head: true })
+    .eq('customer_phone', input.phone).gte('created_at', hourAgo);
+  if ((recent ?? 0) >= 3) {
+    return { ok: false, error: 'invalid', message: 'Too many bookings from this number — please call us instead.' };
+  }
   const sessionUser = await getUser();
   if (sessionUser) {
     const { data: actorProfile } = await admin.from('profiles').select('role').eq('id', sessionUser.id).single();

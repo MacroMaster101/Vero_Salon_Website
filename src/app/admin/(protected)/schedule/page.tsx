@@ -3,13 +3,17 @@ import { createClient } from '@/lib/supabase/server';
 import { toUtcInstant } from '@/lib/time';
 import { SALON_TZ, salonDayKey } from '@/lib/booking-rows';
 import { ScheduleList, type SchedRow } from './schedule-list';
+import { AdminTitle, AdminEmpty } from '@/components/admin/admin-title';
+import { getLocale } from '@/app/locale-action';
+import { t } from '@/lib/i18n/translations';
 
 const TZ = 'Asia/Colombo';
 const whenFmt = new Intl.DateTimeFormat('en-LK', { timeZone: TZ, weekday: 'short', day: 'numeric', month: 'short' });
 const timeFmt = new Intl.DateTimeFormat('en-LK', { timeZone: TZ, hour: 'numeric', minute: '2-digit', hour12: true });
 
 export default async function SchedulePage() {
-  await requireRole(['admin'], '/admin/schedule');
+  const profile = await requireRole(['receptionist'], '/admin/schedule');
+  const locale = await getLocale();
   const sb = await createClient();
   // From the start of today forward. Without a filter this fetched EVERY booking
   // ever: PostgREST caps the response (default 1000 rows) AFTER sorting, so once
@@ -32,13 +36,10 @@ export default async function SchedulePage() {
   return (
     <div className="apage">
       <div className="ahead">
-        <div>
-          <span className="eyebrow">Overview</span>
-          <h1 className="ahead__title">Schedule</h1>
-        </div>
+        <AdminTitle icon="calendar" eyebrow="Overview" title="Schedule" />
       </div>
-      <p className="step__hint" style={{ marginBottom: 14 }}>All salon appointments.</p>
-      {rows.length === 0 ? <p className="step__hint">No bookings.</p> : <ScheduleList rows={rows} />}
+      <p className="step__hint" style={{ marginBottom: 14 }}>{t('All salon appointments.', locale)}</p>
+      {rows.length === 0 ? <AdminEmpty icon="calendar" title="No bookings.">{t('New bookings will show up here as they come in.', locale)}</AdminEmpty> : <ScheduleList rows={rows} canDelete={profile.role !== 'receptionist'} />}
     </div>
   );
 }

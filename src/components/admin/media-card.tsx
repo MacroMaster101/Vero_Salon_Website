@@ -1,5 +1,6 @@
 'use client';
 import type { ReactNode } from 'react';
+import { useT } from '@/lib/i18n/locale-context';
 
 /** Image with the home page's one-shot onError fallback swap (services-tabs). */
 export function CardImg({ src, fallbackSrc, className, alt = '' }: {
@@ -43,6 +44,7 @@ export function MediaCard({ media, title, price, meta, dur, badges = [], childre
   badges?: MediaCardBadge[];
   children: ReactNode;
 }) {
+  const tr = useT();
   const avatar = media.shape === 'avatar';
   return (
     <li className="mcard">
@@ -56,7 +58,7 @@ export function MediaCard({ media, title, price, meta, dur, badges = [], childre
           <span className="mcard__badges">
             {badges.map((b) => (
               <span key={b.label} className={`mcard__badge${b.tone ? ` mcard__badge--${b.tone}` : ''}`}>
-                {b.label}
+                {tr(b.label)}
               </span>
             ))}
           </span>

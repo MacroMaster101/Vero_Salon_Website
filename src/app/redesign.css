@@ -189,8 +189,7 @@ a,button,input { -webkit-tap-highlight-color:transparent; }
 .side,.oside { box-shadow:none; border-right:1px solid var(--line); }
 .side__brand,.oside__brand { font-family:var(--font-display); font-weight:600; letter-spacing:-.04em; }
 .side__nav a,.oside__nav a { border-radius:10px; }
-.acard,.stat-tile,.ostat,.otile,.sd-card { border-radius:16px; box-shadow:none; }
-.opage__title,.oshell .h-section,.oshell .acard__title { font-family:var(--font-display); font-weight:500; letter-spacing:-.045em; }
+.acard,.stat-tile,.otile,.sd-card { border-radius:16px; box-shadow:none; }
 .legal-banner { background:var(--bg-2); }
 .legal-title { font-family:var(--font-display); font-style:normal; font-weight:500; letter-spacing:-.05em; }
 .home-reveal { opacity:1; transform:none; filter:none; }

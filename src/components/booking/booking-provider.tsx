@@ -26,6 +26,7 @@ export function BookingProvider({
   services,
   stylists,
   enabled,
+  closedMessage = null,
   prefill,
   locale = 'en',
   children,
@@ -33,6 +34,8 @@ export function BookingProvider({
   services: Service[];
   stylists: Stylist[];
   enabled: boolean;
+  /** set when online booking is switched off in Web settings: the modal shows this instead of the form */
+  closedMessage?: string | null;
   prefill?: BookingPrefill | null;
   locale?: string;
   children: React.ReactNode;
@@ -53,7 +56,7 @@ export function BookingProvider({
     <Ctx.Provider value={value}>
       {children}
       {enabled && (
-        <BookingModal open={open} onClose={closeBooking} services={services} stylists={stylists} prefill={prefill} locale={locale} />
+        <BookingModal open={open} onClose={closeBooking} services={services} stylists={stylists} prefill={prefill} locale={locale} closedMessage={closedMessage} />
       )}
     </Ctx.Provider>
   );

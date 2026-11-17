@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { setBookingStatus, type BookingStatus } from '@/app/admin/(protected)/booking-actions';
 import { ListToolbar, type FilterChip } from '@/components/admin/list-toolbar';
+import { useT } from '@/lib/i18n/locale-context';
 
 export interface BookingRow {
   id: string;
@@ -31,10 +32,12 @@ const ACTIONS: Array<{ status: BookingStatus; label: string }> = [
 ];
 
 function StatusChip({ status }: { status: BookingStatus }) {
-  return <span className={`tag ${STATUS_CLASS[status]}`}>{STATUS_LABEL[status]}</span>;
+  const tr = useT();
+  return <span className={`tag ${STATUS_CLASS[status]}`}>{tr(STATUS_LABEL[status])}</span>;
 }
 
 export function BookingsTable({ bookings }: { bookings: BookingRow[] }) {
+  const tr = useT();
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   // Unique per instance: the admin page mounts this table more than once
@@ -57,7 +60,7 @@ export function BookingsTable({ bookings }: { bookings: BookingRow[] }) {
     startTransition(async () => {
       const res = await setBookingStatus(id, status);
       if ('error' in res) {
-        alert(`Could not update booking: ${res.error}`);
+        alert(`${tr('Could not update booking')}: ${res.error}`);
         return;
       }
       router.refresh();
@@ -84,22 +87,22 @@ export function BookingsTable({ bookings }: { bookings: BookingRow[] }) {
           <table className="data-table">
             <thead>
               <tr>
-                <th>When</th><th>Customer</th><th>Service</th><th>Stylist</th><th>Ref</th><th>Status</th>
-                <th style={{ textAlign: 'right' }}>Actions</th>
+                <th>{tr('When')}</th><th>{tr('Customer')}</th><th>{tr('Service')}</th><th>{tr('Stylist')}</th><th>{tr('Ref')}</th><th>{tr('Status')}</th>
+                <th style={{ textAlign: 'right' }}>{tr('Actions')}</th>
               </tr>
             </thead>
             <tbody>
               {rows.map((b) => (
                 <tr key={b.id}>
-                  <td data-label="When">{b.whenLabel}</td>
-                  <td data-label="Customer">
+                  <td data-label={tr('When')}>{b.whenLabel}</td>
+                  <td data-label={tr('Customer')}>
                     <div style={{ fontWeight: 600 }}>{b.customerName}</div>
                     <div style={{ opacity: 0.65, fontSize: 12.5 }}>{b.customerPhone}</div>
                   </td>
-                  <td data-label="Service">{b.serviceName}</td>
-                  <td data-label="Stylist">{b.stylistName}</td>
-                  <td className="ref" data-label="Ref">{b.reference}</td>
-                  <td data-label="Status"><StatusChip status={b.status} /></td>
+                  <td data-label={tr('Service')}>{b.serviceName}</td>
+                  <td data-label={tr('Stylist')}>{b.stylistName}</td>
+                  <td className="ref" data-label={tr('Ref')}>{b.reference}</td>
+                  <td data-label={tr('Status')}><StatusChip status={b.status} /></td>
                   <td className="data-table__actions" style={{ textAlign: 'right' }}>
                     {ACTIONS.filter((a) => a.status !== b.status).map((a) => (
                       <button
@@ -109,7 +112,7 @@ export function BookingsTable({ bookings }: { bookings: BookingRow[] }) {
                         disabled={pending}
                         onClick={() => onSet(b.id, a.status)}
                       >
-                        {a.label}
+                        {tr(a.label)}
                       </button>
                     ))}
                   </td>

@@ -6,6 +6,7 @@ import { signUpWithPassword } from './actions';
 import { checkPassword } from '@/lib/auth/password';
 import { AuthShell } from '@/components/auth/auth-shell';
 import { PasswordInput } from '@/components/auth/password-input';
+import { SubmitButton } from '@/components/auth/submit-button';
 import { t } from '@/lib/i18n/translations';
 
 function GoogleMark() {
@@ -19,10 +20,22 @@ function GoogleMark() {
   );
 }
 
+/* "I agree to the {terms} and {privacy}." with both names as links (they open
+   in a new tab so the half-filled form is kept) */
+function Consent({ text, locale }: { text: string; locale: string }) {
+  const parts = t(text, locale).split(/(\{terms\}|\{privacy\})/);
+  return <>{parts.map((part, i) => part === '{terms}'
+    ? <Link key={i} href="/terms" target="_blank" rel="noopener">{t('Terms of Service', locale)}</Link>
+    : part === '{privacy}'
+      ? <Link key={i} href="/privacy" target="_blank" rel="noopener">{t('Privacy Policy', locale)}</Link>
+      : part)}</>;
+}
+
 export function SignupForm({ next, prefillEmail = '', locale = 'en' }: { next: string; prefillEmail?: string; locale?: string }) {
   const [state, action] = useActionState(signUpWithPassword, undefined);
   const [pw, setPw] = useState('');
   const [confirm, setConfirm] = useState('');
+  const [agree, setAgree] = useState(false);
   const loginHref = next ? `/login?next=${encodeURIComponent(next)}` : '/login';
 
   const check = checkPassword(pw);
@@ -48,7 +61,8 @@ export function SignupForm({ next, prefillEmail = '', locale = 'en' }: { next: s
 
         <form action={signInWithGoogle}>
           <input type="hidden" name="next" value={next} />
-          <button className="btn btn--google btn--lg" style={{ width: '100%' }} type="submit"><GoogleMark /> {t('Continue with Google', locale)}</button>
+          <SubmitButton className="btn btn--google btn--lg" pendingLabel={t('Opening Google…', locale)}><GoogleMark /> {t('Continue with Google', locale)}</SubmitButton>
+          <p className="auth__consent"><Consent text="By continuing with Google, you agree to the {terms} and {privacy}." locale={locale} /></p>
         </form>
 
         <div className="divider">{t('or with email', locale)}</div>
@@ -56,7 +70,7 @@ export function SignupForm({ next, prefillEmail = '', locale = 'en' }: { next: s
         <form action={action}>
           <input type="hidden" name="next" value={next} />
           <div className="field"><label htmlFor="su-name">{t('Full name', locale)}</label><input id="su-name" name="full_name" placeholder="e.g. Nimal Perera" autoComplete="name" required /></div>
-          <div className="field"><label htmlFor="su-email">{t('Email', locale)}</label><input id="su-email" name="email" type="email" placeholder="verosalon@gmail.com" autoComplete="email" defaultValue={prefillEmail} required /></div>
+          <div className="field"><label htmlFor="su-email">{t('Email', locale)}</label><input id="su-email" name="email" type="email" placeholder="you@example.com" autoComplete="email" defaultValue={prefillEmail} required /></div>
 
           <div className="field">
             <label htmlFor="su-pw">{t('Password', locale)}</label>
@@ -81,8 +95,13 @@ export function SignupForm({ next, prefillEmail = '', locale = 'en' }: { next: s
             )}
           </div>
 
+          <label className="auth__agree" htmlFor="su-agree">
+            <input id="su-agree" name="agree" type="checkbox" required checked={agree} onChange={e => setAgree(e.target.checked)} />
+            <span><Consent text="I agree to the {terms} and {privacy}." locale={locale} /></span>
+          </label>
+
           {state?.error && <p style={{ color: 'var(--error)', margin: '0 0 12px' }}>{state.error}</p>}
-          <button className="btn btn--primary btn--lg" style={{ width: '100%' }} type="submit" disabled={!check.passed || !matches}>{t('Create account', locale)}</button>
+          <SubmitButton className="btn btn--primary btn--lg" disabled={!check.passed || !matches || !agree} pendingLabel={t('Creating account…', locale)}>{t('Create account', locale)}</SubmitButton>
         </form>
 
         <p className="auth__alt">{t('Already have an account?', locale)} <Link href={loginHref}>{t('Sign in →', locale)}</Link></p>

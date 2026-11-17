@@ -2,6 +2,9 @@
   "name": "vero-salon",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -19,6 +22,7 @@
     "@supabase/supabase-js": "^2.119.0",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.1.0",
+    "motion": "^12.43.0",
     "next": "^16.4.6",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",

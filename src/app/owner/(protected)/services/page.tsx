@@ -1,19 +1,24 @@
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { requireRole } from '@/lib/supabase/auth';
-import { ServicesList } from '@/app/admin/(protected)/services/services-list';
+import { ServicesManager } from '@/app/admin/(protected)/services/services-list';
+import { getAllServiceCategories } from '@/lib/queries';
 import { Icon } from '@/components/ui/icon';
+import { AdminTitle } from '@/components/admin/admin-title';
 
 export default async function OwnerServicesPage() {
-  await requireRole(['owner', 'admin'], '/owner/services');
+  await requireRole(['owner'], '/owner/services');
   const sb = await createClient();
-  const { data: services } = await sb.from('services').select('*').order('sort_order');
+  const [{ data: services }, categories] = await Promise.all([sb.from('services').select('*').order('sort_order'), getAllServiceCategories()]);
   return (
-    <div>
+    <div className="apage">
       <Link href="/owner" className="oback"><Icon name="arrowLeft" className="ic" /> Home</Link>
-      <h1 className="opage__title">Prices &amp; services</h1>
-      <p className="opage__hint">These are the services customers can book, with prices and how long they take.</p>
-      <ServicesList services={services ?? []} />
+      <div className="ahead">
+        <AdminTitle icon="scissors" eyebrow="Menu" title="Prices & services" />
+        <Link href="/services" target="_blank" rel="noopener noreferrer" className="btn btn--ghost">View on site ↗</Link>
+      </div>
+      <p className="lead apage__lead">Your service categories. Open one to see and edit the services inside it, with prices and how long they take.</p>
+      <ServicesManager services={services ?? []} categories={categories} />
     </div>
   );
 }

@@ -5,6 +5,8 @@ import {
   applyStatus, applyReschedule, serviceLabel, groupByDay,
   type StaffBooking, type AdminBookingStatus,
 } from '@/lib/staff/view';
+import { AdminTitle, AdminEmpty } from '@/components/admin/admin-title';
+import { useT } from '@/lib/i18n/locale-context';
 
 export function ScheduleView({
   initialUpcoming, initialHistory, services,
@@ -13,6 +15,7 @@ export function ScheduleView({
   initialHistory: StaffBooking[];
   services: { id: string; name: string }[];
 }) {
+  const tr = useT();
   const [upcoming, setUpcoming] = useState<StaffBooking[]>(initialUpcoming);
   const [history, setHistory] = useState<StaffBooking[]>(initialHistory);
   const [showHistory, setShowHistory] = useState(false);
@@ -34,17 +37,17 @@ export function ScheduleView({
   return (
     <div className="apage">
       <div className="ahead">
-        <div><span className="eyebrow">Roster</span><h1 className="ahead__title">My week</h1></div>
+        <AdminTitle icon="calendar" eyebrow="Roster" title="My week" />
       </div>
 
       <div className="sd-strip" role="group" aria-label="Week at a glance">
-        <div className="sd-strip__item"><b>{upcoming.length}</b><span>upcoming</span></div>
-        <div className="sd-strip__item"><b>{waiting}</b><span>waiting</span></div>
-        <div className="sd-strip__item"><b>{doneRecent}</b><span>done · 30d</span></div>
+        <div className="sd-strip__item"><b>{upcoming.length}</b><span>{tr('upcoming')}</span></div>
+        <div className="sd-strip__item"><b>{waiting}</b><span>{tr('waiting')}</span></div>
+        <div className="sd-strip__item"><b>{doneRecent}</b><span>{tr('done · 30d')}</span></div>
       </div>
 
       {groups.length === 0 ? (
-        <p className="step__hint">No upcoming appointments this week.</p>
+        <AdminEmpty icon="calendar" title="No upcoming appointments this week." />
       ) : (
         groups.map((g) => (
           <section key={g.dayKey} className="sd-daygroup">
@@ -63,12 +66,12 @@ export function ScheduleView({
 
       <section style={{ marginTop: 30 }}>
         <button type="button" className="btn btn--ghost" onClick={() => setShowHistory((v) => !v)} aria-expanded={showHistory}>
-          {showHistory ? 'Hide history' : `Recent history (${history.length})`}
+          {showHistory ? tr('Hide history') : `${tr('Recent history')} (${history.length})`}
         </button>
         {showHistory && (
           <div className="sd-timeline" style={{ marginTop: 12 }}>
             {historyDesc.length === 0 ? (
-              <p className="step__hint">No history yet.</p>
+              <p className="step__hint">{tr('No history yet.')}</p>
             ) : (
               historyDesc.map((b) => (
                 <StaffBookingCard

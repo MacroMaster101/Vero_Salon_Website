@@ -3,6 +3,8 @@ import { createClient } from '@/lib/supabase/server';
 import { safeNext } from '@/lib/auth/redirect';
 import { env } from '@/lib/env';
 import { checkPassword } from '@/lib/auth/password';
+import { getSiteSettings } from '@/lib/settings/get';
+import { customerAccessOpen } from '@/lib/settings/schema';
 
 export type SignUpState = { error: string } | { ok: true; email: string } | undefined;
 
@@ -13,16 +15,18 @@ export async function signUpWithPassword(_prev: SignUpState, formData: FormData)
   const confirm = String(formData.get('confirm') ?? '');
   const next = safeNext(String(formData.get('next') ?? ''));
 
+  if (!customerAccessOpen(await getSiteSettings())) return { error: 'New sign-ups are paused right now. Please call us to book.' };
   if (fullName.length < 2) return { error: 'Please enter your full name.' };
   if (!checkPassword(password).passed) return { error: 'Password does not meet the requirements.' };
   if (password !== confirm) return { error: 'Passwords do not match.' };
+  if (formData.get('agree') !== 'on') return { error: 'Please agree to the Terms of Service and Privacy Policy.' };
 
   const sb = await createClient();
   const emailRedirectTo = `${env.siteUrl}/auth/callback${next ? `?next=${encodeURIComponent(next)}` : ''}`;
   const { error } = await sb.auth.signUp({
     email,
     password,
-    options: { data: { full_name: fullName }, emailRedirectTo },
+    options: { data: { full_name: fullName, terms_accepted_at: new Date().toISOString() }, emailRedirectTo },
   });
   if (error) return { error: error.message };
   return { ok: true, email };

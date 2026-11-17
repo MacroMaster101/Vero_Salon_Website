@@ -3,10 +3,11 @@ import { createClient } from '@/lib/supabase/server';
 import { getPeopleAvatarMap } from '@/lib/people-avatars';
 import { LoadError } from '@/components/admin/load-error';
 import { PeopleList } from './people-list';
-import { InviteStaffForm } from './invite-form';
+import { InviteStaffButton } from './invite-form';
+import { AdminTitle } from '@/components/admin/admin-title';
 
 export default async function PeoplePage() {
-  const profile = await requireRole(['admin'], '/admin/people');
+  const profile = await requireRole(['webdev'], '/admin/people');
   const sb = await createClient();
   const [{ data: profiles, error: peopleErr }, { data: stylists, error: stylistErr }, avatars] = await Promise.all([
     sb.from('profiles').select('id, full_name, email, role, stylist_id').order('created_at', { ascending: true }),
@@ -17,12 +18,9 @@ export default async function PeoplePage() {
   return (
     <div className="apage">
       <div className="ahead">
-        <div>
-          <span className="eyebrow">Team &amp; access</span>
-          <h1 className="ahead__title">People</h1>
-        </div>
+        <AdminTitle icon="people" eyebrow="Team &amp; access" title="People" />
+        <InviteStaffButton />
       </div>
-      <InviteStaffForm />
       <LoadError what="people" error={peopleErr} />
       {/* Without the stylist list the role form's dropdown silently collapses to
           "— no stylist —", so saving would unlink a staff member from their card. */}

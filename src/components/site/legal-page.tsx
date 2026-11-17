@@ -1,6 +1,13 @@
 import type { ReactNode } from 'react';
 import { cookies } from 'next/headers';
 import { t } from '@/lib/i18n/translations';
+import { Icon, type IconName } from '@/components/ui/icon';
+
+/* a small icon for each section, by its id (falls back to a tick) */
+const SECTION_ICONS: Record<string, IconName> = {
+  collect: 'user', why: 'check', storage: 'lock', sharing: 'people', retention: 'clock', deletion: 'xmark',
+  contact: 'phone', booking: 'calendar', payment: 'tag', accounts: 'user', liability: 'scissors',
+};
 
 export type LegalSection = { id: string; heading: string; body: ReactNode };
 
@@ -15,26 +22,52 @@ export async function LegalPage({
   lead,
   updated,
   sections,
+  highlights = [],
+  icon = 'lock',
 }: {
   kicker: string;
   title: string;
   lead: string;
   updated: string;
   sections: LegalSection[];
+  highlights?: string[];
+  icon?: IconName;
 }) {
   const locale = (await cookies()).get('locale')?.value === 'si' ? 'si' : 'en';
+  const orbit = [...new Set(sections.map((s) => SECTION_ICONS[s.id] ?? 'check'))].slice(0, 5);
   return (
     <div className="legal">
 
 
       {/* ── banner ── */}
       <section className="legal-banner">
-        <div className="legal-wrap">
+        <div className="legal-wrap legal-banner__grid">
+          <div className="legal-banner__copy">
           <span className="legal-kicker">{t(kicker, locale)}</span>
           <h1 className="legal-title">{t(title, locale)}</h1>
           <p className="legal-lead">{t(lead, locale)}</p>
           <p className="legal-stamp">{t('Last updated', locale)} <span lang="en">{updated}</span></p>
+          {highlights.length > 0 && (
+            <ul className="legal-highlights" aria-label={t('In short', locale)}>
+              {highlights.map((item) => <li key={item}><Icon name="check" size={14} />{t(item, locale)}</li>)}
+            </ul>
+          )}
           {locale === 'si' && <p className="legal-stamp legal-stamp--note">{t('The full text below is in English, which is the version that applies.', locale)}</p>}
+          </div>
+
+          {/* decorative: the page's main icon with its section icons orbiting it */}
+          <div className="legal-art" aria-hidden="true">
+            <span className="legal-art__ring" />
+            <span className="legal-art__ring legal-art__ring--inner" />
+            <span className="legal-art__glow" />
+            <span className="legal-art__core"><Icon name={icon} size={44} /></span>
+            <div className="legal-art__orbit">
+              {orbit.map((name, i) => (
+                <span key={name} className="legal-art__chip" style={{ ['--a' as string]: `${(360 / orbit.length) * i}deg` }}>
+                  <span><Icon name={name} size={18} /></span>
+                </span>
+              ))}
+            </div>          </div>
         </div>
       </section>
 
@@ -65,8 +98,8 @@ export async function LegalPage({
 
         <div className="legal-content">
           {sections.map((s) => (
-            <section className="legal-section" id={s.id} key={s.id}>
-              <h2 className="legal-h">{t(s.heading, locale)}</h2>
+            <section className="legal-section home-reveal" id={s.id} key={s.id}>
+              <h2 className="legal-h"><span className="legal-h__icon" aria-hidden="true"><Icon name={SECTION_ICONS[s.id] ?? 'check'} size={18} /></span>{t(s.heading, locale)}</h2>
               <div className="legal-prose" lang="en">{s.body}</div>
             </section>
           ))}

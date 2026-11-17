@@ -3,9 +3,13 @@ import { requireRole } from '@/lib/supabase/auth';
 import { getSiteContent } from '@/lib/content/get';
 import { getBusinessHours } from '@/lib/queries';
 import { QuoteForm, CtaForm, StoryForm, HeroForm, StatsForm, ContactForm, HoursForm } from './content-forms';
+import { AdminTitle } from '@/components/admin/admin-title';
+import { getLocale } from '@/app/locale-action';
+import { t } from '@/lib/i18n/translations';
 
 export default async function ContentPage() {
-  await requireRole(['admin'], '/admin/content');
+  await requireRole(['webdev'], '/admin/content');
+  const locale = await getLocale();
   const [quote, cta, story, hero, stats, contact, hours] = await Promise.all([
     getSiteContent('quote'),
     getSiteContent('cta'),
@@ -18,11 +22,8 @@ export default async function ContentPage() {
   return (
     <div className="apage">
       <div className="ahead">
-        <div>
-          <span className="eyebrow">Homepage</span>
-          <h1 className="ahead__title">Content</h1>
-        </div>
-        <Link href="/" target="_blank" className="btn btn--ghost">View on site ↗</Link>
+        <AdminTitle icon="pen" eyebrow="Homepage" title="Content" />
+        <Link href="/" target="_blank" className="btn btn--ghost">{t('View on site', locale)} ↗</Link>
       </div>
       <div className="acontent-grid">
         <HeroForm content={hero} />

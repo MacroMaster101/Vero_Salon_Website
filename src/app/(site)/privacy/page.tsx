@@ -71,6 +71,7 @@ export default function PrivacyPage() {
       lead="What we collect when you book or create an account, why we collect it, and how to have it removed."
       updated="1 October 2026"
       sections={sections}
+      highlights={['We never sell your data', 'No ad trackers', 'Delete your data anytime']}
     />
   );
 }

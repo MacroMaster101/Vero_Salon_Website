@@ -1,7 +1,7 @@
 // Public, read-only data fetchers for the marketing site (services, stylists,
 // gallery, reviews, business hours). Run with the anon client under RLS.
 import { createClient } from '@/lib/supabase/server';
-import type { Service, Stylist, GalleryItem, BusinessHour } from '@/lib/supabase/types';
+import type { Service, ServiceCategoryRow, Stylist, GalleryItem, BusinessHour } from '@/lib/supabase/types';
 
 // A single review row as shown on the homepage testimonials.
 export type Review = {
@@ -21,7 +21,7 @@ const FALLBACK_SERVICES: Service[] = [
   { id: '3b90f4fa-d07f-4c54-8c81-80e9a1170d10', slug: 'colour-full', name: 'Full Hair Colour', description: 'Root to tip, your shade.', category: 'hair', price_lkr: 6000, duration_min: 120, icon: 'color', image_url: null, bookable: true, sort_order: 4, is_active: true, is_featured: false },
   { id: 'c5a3d7d1-e6e2-45e0-8ad4-1c881c1c1f51', slug: 'hair-spa', name: 'Hair Treatment & Spa', description: 'Deep conditioning repair.', category: 'hair', price_lkr: 2500, duration_min: 45, icon: 'beauty', image_url: null, bookable: true, sort_order: 5, is_active: true, is_featured: false },
   { id: 'c78b88d8-7967-4fb7-85ef-9689f92945d8', slug: 'kids-cut', name: 'Kids\' Cut (under 12)', description: 'Quick, gentle & patient.', category: 'hair', price_lkr: 600, duration_min: 25, icon: 'scissors', image_url: null, bookable: true, sort_order: 6, is_active: true, is_featured: false },
-  { id: '24a2a6b2-6014-4361-9c60-8d591b61b58a', slug: 'beard', name: 'Beard Grooming', description: 'Trim, shape & finish.', category: 'beauty', price_lkr: 500, duration_min: 25, icon: 'razor', image_url: null, bookable: true, sort_order: 7, is_active: true, is_featured: false },
+  { id: '24a2a6b2-6014-4361-9c60-8d591b61b58a', slug: 'beard', name: 'Beard Grooming', description: 'Trim, shape & finish.', category: 'grooming', price_lkr: 500, duration_min: 25, icon: 'razor', image_url: null, bookable: true, sort_order: 7, is_active: true, is_featured: false },
   { id: 'ea4a07d7-27b3-4f9e-990c-03d3f9b2d8d8', slug: 'facial', name: 'Clean-up & Facial', description: 'Glow facial, him or her.', category: 'beauty', price_lkr: 2500, duration_min: 50, icon: 'beauty', image_url: null, bookable: true, sort_order: 8, is_active: true, is_featured: false },
   { id: '96d115e5-7977-4475-ba7e-726071d2b860', slug: 'threading', name: 'Threading (brow / face)', description: 'Quick & precise.', category: 'beauty', price_lkr: 200, duration_min: 15, icon: 'beauty', image_url: null, bookable: true, sort_order: 9, is_active: true, is_featured: false },
   { id: 'e685f400-0df2-4752-bf6d-8fb4fa7db38f', slug: 'waxing', name: 'Waxing (full arm)', description: 'Smooth, clean finish.', category: 'beauty', price_lkr: 900, duration_min: 30, icon: 'beauty', image_url: null, bookable: true, sort_order: 10, is_active: true, is_featured: false },
@@ -59,6 +59,25 @@ export async function getServices() {
   const sb = await createClient();
   const { data } = await sb.from('services').select('*').eq('is_active', true).order('sort_order');
   return data && data.length > 0 ? data : FALLBACK_SERVICES;
+}
+
+/** shown when the service_categories table is missing (before migration 0014) or empty */
+export const FALLBACK_CATEGORIES: ServiceCategoryRow[] = [
+  { slug: 'hair', name: 'Hair & styling', note: 'A fresh look for every age.', image_url: '/images/services/hair.png', icon: 'scissors', sort_order: 1, is_active: true, created_at: '' },
+  { slug: 'grooming', name: 'Beard & grooming', note: 'Sharp fades and tidy beards.', image_url: '/images/services/beard.png', icon: 'user', sort_order: 2, is_active: true, created_at: '' },
+  { slug: 'beauty', name: 'Beauty & bridal', note: 'Everyday care to your big day.', image_url: '/images/services/bridal.png', icon: 'star', sort_order: 3, is_active: true, created_at: '' },
+];
+
+/** every category, in order (admins also see hidden ones) */
+export async function getAllServiceCategories(): Promise<ServiceCategoryRow[]> {
+  const sb = await createClient();
+  const { data, error } = await sb.from('service_categories').select('*').order('sort_order').order('name');
+  return !error && data && data.length > 0 ? data : FALLBACK_CATEGORIES;
+}
+
+/** the categories visitors can see */
+export async function getServiceCategories(): Promise<ServiceCategoryRow[]> {
+  return (await getAllServiceCategories()).filter((c) => c.is_active);
 }
 
 export async function getBookableServices() {

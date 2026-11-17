@@ -11,12 +11,16 @@ import { ImgSlot } from '@/components/site/img-slot';
 import { ServicePreview } from '@/components/home/services-tabs';
 import { LookbookPreview } from '@/components/site/lookbook-preview';
 import { HeroPortraits } from '@/components/home/hero-portraits';
+import { SectionMark } from '@/components/home/section-mark';
+import { HowSteps } from '@/components/home/how-steps';
+import { TeamGrid } from '@/components/site/team-grid';
+import { Ticker } from '@/components/site/ticker';
 
 const reviewDate = new Intl.DateTimeFormat('en-LK', { timeZone: 'Asia/Colombo', day: 'numeric', month: 'short', year: 'numeric' });
 
 export default async function Home({ searchParams }: { searchParams: Promise<{ deleted?: string }> }) {
   const sp = await searchParams;
-  const { services, gallery, reviews, hours, hero: storedHero, story: storedStory, contact: storedContact, locale } = await getPublicSite();
+  const { services, gallery, reviews, stylists, hours, hero: storedHero, story: storedStory, contact: storedContact, locale } = await getPublicSite();
   const hero = { ...storedHero };
   if (hero.line1 === 'The art of') hero.line1 = 'Look good.';
   if (hero.line2Em === 'looking') hero.line2Em = 'Feel like';
@@ -53,6 +57,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ d
 
           {/* ── story / about ── */}
           <section className="home-section home-story salon-home-story" id="about">
+            <SectionMark icon="people" title={t('Welcome to Vero', locale)} detail={t('A friendly unisex salon in Pasyala', locale)} variant="solid" />
             <div className="home-wrap home-story__grid">
               <div className="home-story__art home-reveal">
                 <ImgSlot src="/images/generated/salon-care.webp" alt={t('Personal hair care and styling',locale)} sizes="(max-width: 980px) 100vw, 50vw" />
@@ -61,21 +66,30 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ d
                 <span className="home-eyebrow">{t('A space for everyone',locale)}</span>
                 <h2 className="home-h"><Words text={t('Get to know Vero',locale)} /></h2>
                 <p>{story.paragraphs[0]}</p>
-                <Link className="salon-section-link" href="/about">{t('Get to know Vero', locale)}</Link>
+                <Link className="salon-section-link" href="/about">{t('Read our story', locale)}</Link>
               </div>
             </div>
           </section>
 
           {/* ── how it works ── */}
-          <section className="home-section salon-home-guide" id="how"><div className="home-wrap"><div className="salon-home-guide__intro home-reveal"><div><span className="home-eyebrow">{t('How it works',locale)}</span><h2 className="home-h"><Words text={t('Your visit, made easy.',locale)} /></h2></div><Link href="/your-visit" className="salon-section-link">{t('The full visit guide',locale)}</Link></div><ol>{[
-            {h:'Book a slot',p:'Choose your service and a time that suits you.'},
-            {h:'Consultation',p:'Tell us your idea. We will help shape the look.'},
-            {h:'Sit back',p:'Relax while we take care of the details.'},
-            {h:'Style & finish',p:'Check the result and leave feeling refreshed.'},
-          ].map((step,index)=><li className="home-reveal" key={step.h}><span aria-hidden="true">0{index+1}</span><h3>{t(step.h,locale)}</h3><p>{t(step.p,locale)}</p></li>)}</ol></div></section>
+          <section className="home-section salon-home-guide" id="how"><SectionMark icon="calendar" title={t('Book or just walk in', locale)} align="right" detail={t('Open daily, four easy steps either way', locale)} variant="accent" /><div className="home-wrap"><HowSteps intro={<div className="how-intro home-reveal"><h2 className="home-h"><Words text={t('Your visit, made easy.',locale)} /></h2><Link href="/your-visit" className="salon-section-link how-guide-link">{t('The full visit guide',locale)}</Link></div>} stepLabel={t('Step',locale)} paths={[
+            {id:'book',label:'Book ahead',note:'Pick a time online and your stylist is ready when you arrive.',steps:[
+              {h:'Book a slot',p:'Choose your service and a time that suits you.',img:'/images/how/step-1.png',alt:'Booking a time slot on a phone'},
+              {h:'Consultation',p:'Tell us your idea. We will help shape the look.',img:'/images/how/step-2.png',alt:'A stylist talking through looks with a guest'},
+              {h:'Sit back',p:'Relax while we take care of the details.',img:'/images/how/step-3.png',alt:'A guest relaxing during a hair wash'},
+              {h:'Style & finish',p:'Check the result and leave feeling refreshed.',img:'/images/how/step-5.png',alt:'A guest smiling at her finished hair in the mirror'},
+            ]},
+            {id:'walk',label:'Walk in',note:'No booking? No problem. We are open daily, 10 AM to midnight, and a free stylist will look after you.',steps:[
+              {h:'Walk in anytime',p:'Drop by any day between 10 AM and midnight. No appointment needed.',img:'/images/story/interior.png',alt:'Inside the salon, with chairs ready for guests'},
+              {h:'Meet a free stylist',p:'Whoever is free looks after you, so you rarely wait long.',img:'/images/generated/barber-craft.webp',alt:'A barber giving a guest a fresh fade'},
+              {h:'Sit back',p:'Relax while we take care of the details.',img:'/images/how/step-3.png',alt:'A guest relaxing during a hair wash'},
+              {h:'Style & finish',p:'Check the result and leave feeling refreshed.',img:'/images/how/step-5.png',alt:'A guest smiling at her finished hair in the mirror'},
+            ]},
+          ].map(path=>({id:path.id,label:t(path.label,locale),note:t(path.note,locale),steps:path.steps.map(s=>({title:t(s.h,locale),text:t(s.p,locale),img:s.img,alt:t(s.alt,locale)}))}))} /></div></section>
 
           {/* ── services / pricing ── */}
           <section className="home-section salon-home-services" id="services">
+            <SectionMark icon="scissors" title={t('Our services', locale)} align="center" detail={t('Hair, beauty and grooming, priced up front', locale)} variant="fade" />
             <div className="home-wrap">
               <div className="home-head home-reveal">
                 <span className="home-eyebrow">{t('The service edit', locale)}</span>
@@ -90,21 +104,37 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ d
           {/* ── lookbook ── */}
           {looks.length > 0 && (
             <section className="home-section" id="looks" style={{ background: 'transparent' }}>
+              <SectionMark icon="eye" title={t('Style inspiration', locale)} detail={t('Real looks from our chairs', locale)} variant="dashed" />
               <div className="home-wrap">
                 <LookbookPreview items={looks} locale={locale} />
               </div>
             </section>
           )}
 
+          {/* ── stylists ── */}
+          {stylists.length > 0 && (
+            <section className="home-section salon-home-team" id="team">
+              <SectionMark icon="people" title={t('The team', locale)} align="center" detail={t('Ask for your favourite when you book', locale)} variant="solid" />
+              <div className="home-wrap">
+                <div className="home-head home-reveal">
+                  <h2 className="home-h"><Words text={t('Meet our stylists', locale)} /></h2>
+                  <div className="salon-section-intro"><p className="home-lead">{t('A friendly, trained team dedicated to hair craft, colour and beauty care.', locale)}</p><Link className="salon-section-link" href="/stylists">{t('Meet the whole team', locale)}</Link></div>
+                </div>
+                <TeamGrid stylists={stylists.slice(0, 4)} locale={locale} />
+              </div>
+            </section>
+          )}
+
           {/* ── reviews ── */}
             <section className="home-section salon-home-reviews" id="reviews">
+              <SectionMark icon="check" title={t('Happy guests', locale)} align="right" detail={t('What our clients say', locale)} variant="dotted" />
               <div className="home-wrap">
                 {reviews.length > 0 && <div className="home-head home-reveal">
                   <span className="home-eyebrow home-eyebrow--center">{t('Client voices', locale)}</span>
                   <h2 className="home-h"><Words text={t('What guests say', locale)} /></h2>
                 </div>}
                 <div className="home-reviews__grid home-car">
-                  {reviews.length === 0 && <div className="salon-google-reviews home-reveal"><div><span className="home-eyebrow">{t('A little local love',locale)}</span><strong><b data-ticker="4.9">4.9</b> <span>/ 5</span></strong><span>{t('Google rating', locale)}</span></div><div><h2><Words text={t('Good company. Great hair.',locale)} /></h2><p>{t('Explore customer feedback and get to know the salon on Google.', locale)}</p></div><a className="home-link" href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`Vero Salon ${contact.address}`)}`} target="_blank" rel="noopener noreferrer">{t('Read the reviews', locale)}</a></div>}
+                  {reviews.length === 0 && <div className="salon-google-reviews home-reveal"><div><span className="home-eyebrow">{t('A little local love',locale)}</span><strong><Ticker value="4.9" /> <span>/ 5</span></strong><span>{t('Google rating', locale)}</span></div><div><h2><Words text={t('Good company. Great hair.',locale)} /></h2><p>{t('Explore customer feedback and get to know the salon on Google.', locale)}</p></div><a className="home-link" href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`Vero Salon ${contact.address}`)}`} target="_blank" rel="noopener noreferrer">{t('Read the reviews', locale)}</a></div>}
                   {reviews.slice(0, 3).map((r) => (
                     <article className="home-card home-review home-reveal" key={r.id}>
                       <div className="home-review__stars" aria-label={t('{rating} out of 5', locale).replace('{rating}', String(r.rating))}>{'★'.repeat(r.rating)}</div>
@@ -124,6 +154,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ d
 
           {/* ── faq ── */}
           <section className="home-section salon-home-faq" id="faq">
+            <SectionMark icon="search" title={t('Good to know', locale)} align="center" detail={t('Quick answers before you visit', locale)} variant="solid" />
             <div className="home-wrap salon-faq-layout">
               <div className="salon-faq-intro home-reveal">
                 <span className="home-eyebrow">{t('Before your visit', locale)}</span>
@@ -136,7 +167,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ d
             </div>
           </section>
 
-          <LocationPreview locations={salonLocations(storedContact)} locale={locale} hours={hours} phoneOther={storedContact.phoneOther} facebookUrl={storedContact.facebookUrl} />
+          <LocationPreview mark locations={salonLocations(storedContact)} locale={locale} hours={hours} phoneOther={storedContact.phoneOther} facebookUrl={storedContact.facebookUrl} />
 
 
   </>;

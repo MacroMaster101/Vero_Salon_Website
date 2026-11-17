@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { signInWithGoogle, signInWithPassword } from './actions';
 import { AuthShell } from '@/components/auth/auth-shell';
 import { PasswordInput } from '@/components/auth/password-input';
+import { SubmitButton } from '@/components/auth/submit-button';
 import { t } from '@/lib/i18n/translations';
 
 function GoogleMark() {
@@ -25,20 +26,20 @@ export function LoginForm({ next, oauthError, locale = 'en' }: { next: string; o
     <AuthShell back={{ href: '/', label: t('Back to home', locale) }} locale={locale}>
         <span className="eyebrow">{t('Your account', locale)}</span>
         <h1 className="h-section auth__title">{t('Welcome', locale)} <em>{t('back', locale)}</em></h1>
-        <p className="auth__lead">{t('Your chair is waiting — sign in to manage your bookings.', locale)}</p>
+        <p className="auth__lead">{t('Your chair is waiting. Sign in to manage your bookings.', locale)}</p>
 
         {oauthError && <p style={{ color: 'var(--error)', marginBottom: 16 }}>{oauthError}</p>}
 
         <form action={signInWithGoogle}>
           <input type="hidden" name="next" value={next} />
-          <button className="btn btn--google btn--lg" style={{ width: '100%' }} type="submit"><GoogleMark /> {t('Continue with Google', locale)}</button>
+          <SubmitButton className="btn btn--google btn--lg" pendingLabel={t('Opening Google…', locale)}><GoogleMark /> {t('Continue with Google', locale)}</SubmitButton>
         </form>
 
         <div className="divider">{t('or sign in with email', locale)}</div>
 
         <form action={action}>
           <input type="hidden" name="next" value={next} />
-          <div className="field"><label htmlFor="login-email">{t('Email', locale)}</label><input id="login-email" name="email" type="email" placeholder="verosalon@gmail.com" autoComplete="email" required /></div>
+          <div className="field"><label htmlFor="login-email">{t('Email', locale)}</label><input id="login-email" name="email" type="email" placeholder="you@example.com" autoComplete="email" required /></div>
           <div className="field">
             <label htmlFor="login-password">{t('Password', locale)}</label>
             <PasswordInput id="login-password" name="password" autoComplete="current-password" required />
@@ -47,7 +48,7 @@ export function LoginForm({ next, oauthError, locale = 'en' }: { next: string; o
             <Link href="/forgot-password">{t('Forgot password?', locale)}</Link>
           </p>
           {state?.error && <p style={{ color: 'var(--error)', margin: '0 0 12px' }}>{state.error}</p>}
-          <button className="btn btn--primary btn--lg" style={{ width: '100%' }} type="submit">{t('Sign in', locale)}</button>
+          <SubmitButton className="btn btn--primary btn--lg" pendingLabel={t('Signing in…', locale)}>{t('Sign in', locale)}</SubmitButton>
         </form>
 
         <p className="auth__alt">{t('New here?', locale)} <Link href={signupHref}>{t('Create an account →', locale)}</Link></p>

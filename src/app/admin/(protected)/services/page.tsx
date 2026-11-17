@@ -2,23 +2,25 @@ import Link from 'next/link';
 import { requireRole } from '@/lib/supabase/auth';
 import { createClient } from '@/lib/supabase/server';
 import { LoadError } from '@/components/admin/load-error';
-import { ServicesList } from './services-list';
+import { ServicesManager } from './services-list';
+import { getAllServiceCategories } from '@/lib/queries';
+import { AdminTitle } from '@/components/admin/admin-title';
+import { getLocale } from '@/app/locale-action';
+import { t } from '@/lib/i18n/translations';
 
 export default async function ServicesPage() {
-  await requireRole(['admin'], '/admin/services');
+  await requireRole(['webdev'], '/admin/services');
+  const locale = await getLocale();
   const sb = await createClient();
-  const { data: services, error } = await sb.from('services').select('*').order('sort_order');
+  const [{ data: services, error }, categories] = await Promise.all([sb.from('services').select('*').order('sort_order'), getAllServiceCategories()]);
   return (
     <div className="apage">
       <div className="ahead">
-        <div>
-          <span className="eyebrow">Catalogue</span>
-          <h1 className="ahead__title">Services</h1>
-        </div>
-        <Link href="/#services" target="_blank" className="btn btn--ghost">View on site ↗</Link>
+        <AdminTitle icon="scissors" eyebrow="Catalogue" title="Services" />
+        <Link href="/services" target="_blank" className="btn btn--ghost">{t('View on site', locale)} ↗</Link>
       </div>
       <LoadError what="services" error={error} />
-      <ServicesList services={services ?? []} />
+      <ServicesManager services={services ?? []} categories={categories} />
     </div>
   );
 }

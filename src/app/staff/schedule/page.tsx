@@ -3,6 +3,7 @@ import { getMyAssignedBookings } from '@/lib/staff/bookings';
 import { getServices } from '@/lib/queries';
 import { colomboDayWindow } from '@/lib/staff/view';
 import { ScheduleView } from './schedule-view';
+import { AdminTitle, AdminEmpty } from '@/components/admin/admin-title';
 
 export default async function StaffSchedulePage() {
   const profile = await getProfile();
@@ -11,8 +12,8 @@ export default async function StaffSchedulePage() {
   if (!stylistId) {
     return (
       <div className="apage">
-        <div className="ahead"><div><span className="eyebrow">Roster</span><h1 className="ahead__title">My week</h1></div></div>
-        <p className="step__hint">Your account isn’t linked to a stylist chair yet — contact an admin.</p>
+        <div className="ahead"><AdminTitle icon="calendar" eyebrow="Roster" title="My week" /></div>
+        <AdminEmpty icon="user" title="Not linked to a stylist yet">Your account isn’t linked to a stylist chair yet — contact an admin.</AdminEmpty>
       </div>
     );
   }

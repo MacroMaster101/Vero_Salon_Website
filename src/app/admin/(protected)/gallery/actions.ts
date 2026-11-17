@@ -20,7 +20,7 @@ function parse(fd: FormData) {
 function revalidate() { revalidatePath(PATH); revalidatePath('/'); }
 
 export async function createGalleryItem(fd: FormData): Promise<Result> {
-  await requireRole(['admin', 'owner'], PATH);
+  await requireRole(['owner'], PATH);
   const parsed = parse(fd);
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Invalid input' };
   const sb = await createClient();
@@ -31,7 +31,7 @@ export async function createGalleryItem(fd: FormData): Promise<Result> {
 }
 
 export async function updateGalleryItem(fd: FormData): Promise<Result> {
-  await requireRole(['admin', 'owner'], PATH);
+  await requireRole(['owner'], PATH);
   const id = String(fd.get('id') ?? '');
   if (!id) return { error: 'Missing gallery id' };
   const parsed = parse(fd);
@@ -44,7 +44,7 @@ export async function updateGalleryItem(fd: FormData): Promise<Result> {
 }
 
 export async function deleteGalleryItem(fd: FormData): Promise<Result> {
-  await requireRole(['admin', 'owner'], PATH);
+  await requireRole(['owner'], PATH);
   const id = String(fd.get('id') ?? '');
   if (!id) return { error: 'Missing gallery id' };
   const sb = await createClient();

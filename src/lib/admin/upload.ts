@@ -1,5 +1,5 @@
 // Admin image upload to Supabase Storage (gallery/service/stylist photos). Uses
-// the service-role client and self-guards with requireRole(['admin','owner']).
+// the service-role client and self-guards with requireRole(['owner']).
 'use server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { requireRole } from '@/lib/supabase/auth';
@@ -21,7 +21,7 @@ const MAX_BYTES = 5 * 1024 * 1024; // 5 MB
 type UploadResult = { url: string } | { error: string };
 
 export async function uploadImage(formData: FormData): Promise<UploadResult> {
-  await requireRole(['admin', 'owner'], '/admin');
+  await requireRole(['owner'], '/admin');
   const file = formData.get('file');
   if (!(file instanceof File) || file.size === 0) return { error: 'No file selected' };
   if (!ALLOWED.includes(file.type)) return { error: 'Use a JPG, PNG, WEBP, AVIF or GIF image' };

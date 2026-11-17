@@ -1,76 +1,62 @@
 'use client';
-import { useActionState } from 'react';
 import { ListToolbar, type FilterChip } from '@/components/admin/list-toolbar';
-import { Field, TextInput, Switch, SubmitButton, FormStatus, DeleteForm } from '@/components/admin/form-kit';
+import { Field, TextInput, Switch, DeleteForm } from '@/components/admin/form-kit';
+import { FormModal } from '@/components/admin/form-modal';
 import { ImageField } from '@/components/admin/image-field';
-import { MediaCard } from '@/components/admin/media-card';
+import { MediaCard, CardImg } from '@/components/admin/media-card';
 import { useViewMode } from '@/components/admin/use-view-mode';
 import { ViewToggle } from '@/components/admin/view-toggle';
 import { createGalleryItem, updateGalleryItem, deleteGalleryItem } from './actions';
 import type { GalleryItem } from '@/lib/supabase/types';
+import { useT } from '@/lib/i18n/locale-context';
 
 function GalleryFields({ g }: { g?: GalleryItem }) {
   return (
     <>
-      <Field label="Title"><TextInput name="title" defaultValue={g?.title ?? ''} required /></Field>
-      <Field label="Tag"><TextInput name="tag" defaultValue={g?.tag ?? ''} /></Field>
-      <Field label="Category / caption"><TextInput name="category" defaultValue={g?.category ?? ''} /></Field>
-      <ImageField name="image_url" label="Image" defaultValue={g?.image_url ?? ''} />
-      <Field label="Sort order"><TextInput name="sort_order" type="number" defaultValue={g?.sort_order ?? 0} /></Field>
+      <Field label="Title" required><TextInput name="title" defaultValue={g?.title ?? ''} required placeholder="e.g. Soft balayage" /></Field>
+      <div className="atwo">
+        <Field label="Tag" optional><TextInput name="tag" defaultValue={g?.tag ?? ''} placeholder="e.g. Colour" /></Field>
+        <Field label="Sort order" optional><TextInput name="sort_order" type="number" defaultValue={g?.sort_order ?? 0} /></Field>
+      </div>
+      <Field label="Category / caption" optional><TextInput name="category" defaultValue={g?.category ?? ''} placeholder="e.g. Hair · Colour" /></Field>
+      <ImageField name="image_url" label="Image" defaultValue={g?.image_url ?? ''} required />
       <Switch name="is_active" label="Active (shown on site)" defaultChecked={g?.is_active ?? true} />
     </>
   );
 }
 
-function CreateForm() {
-  const [state, action, pending] = useActionState(
-    async (_p: unknown, fd: FormData) => createGalleryItem(fd),
-    undefined as undefined | { error: string } | { ok: true },
-  );
+function AddButton() {
   return (
-    <form action={action} className="acard">
-      <div className="acard__title">Add a gallery item</div>
+    <FormModal trigger={{ label: 'Add photo', icon: 'plus', variant: 'fab' }} title="New lookbook photo" icon="image"
+      action={createGalleryItem} submitLabel="Add photo" pendingLabel="Adding…" okToast="Photo added.">
       <GalleryFields />
-      <FormStatus state={state} />
-      <SubmitButton pending={pending}>Add item</SubmitButton>
-    </form>
+    </FormModal>
   );
 }
 
-/** Edit <details> + Delete — one instance per item, shared by row and card views. */
+/** Edit popup + Delete — one instance per item, shared by row and card views. */
 function GalleryActions({ g }: { g: GalleryItem }) {
-  const [state, action, pending] = useActionState(
-    async (_p: unknown, fd: FormData) => updateGalleryItem(fd),
-    undefined as undefined | { error: string } | { ok: true },
-  );
+  const tr = useT();
   return (
     <>
-      <details className="arow__edit">
-        <summary />
-        <form action={action}>
-          <input type="hidden" name="id" value={g.id} />
-          <GalleryFields g={g} />
-          <FormStatus state={state} />
-          <div className="aform__foot">
-            <SubmitButton pending={pending} />
-            <button type="button" className="btn btn--ghost"
-              onClick={(e) => e.currentTarget.closest('details')?.removeAttribute('open')}>
-              Cancel
-            </button>
-          </div>
-        </form>
-      </details>
-      <DeleteForm action={deleteGalleryItem} id={g.id} confirm={`Delete "${g.title}"?`} />
+      <FormModal trigger={{ label: 'Edit', icon: 'pen' }} title="Edit photo" subtitle={g.title} icon="image"
+        action={updateGalleryItem}>
+        <input type="hidden" name="id" value={g.id} />
+        <GalleryFields g={g} />
+      </FormModal>
+      <DeleteForm action={deleteGalleryItem} id={g.id} iconOnly confirm={`${tr('Delete')} "${g.title}"?`} />
     </>
   );
 }
 
 function EditRow({ g }: { g: GalleryItem }) {
+  const tr = useT();
   return (
     <li className="arow">
+      <span className="arow__thumb"><CardImg src={g.image_url || '/images/services/hair.png'} fallbackSrc="/images/services/hair.png" /></span>
       <div className="arow__head">
         <span className="arow__name">{g.title}</span>
-        <span className="arow__meta">{g.tag}{g.is_active ? '' : ' · hidden'}</span>
+        <span className="arow__meta">{g.tag}{g.is_active ? '' : ` · ${tr('hidden')}`}</span>
       </div>
       <div className="arow__actions">
         <GalleryActions g={g} />
@@ -100,8 +86,7 @@ export function GalleryList({ items }: { items: GalleryItem[] }) {
     { id: 'hidden', label: 'Hidden', match: (g) => !g.is_active },
   ];
   return (
-    <div className="acrud">
-      <div className="acrud__list">
+    <div className="acrud acrud--full">
         <ListToolbar
           items={items}
           placeholder="Search gallery…"
@@ -109,16 +94,14 @@ export function GalleryList({ items }: { items: GalleryItem[] }) {
           chips={chips}
           emptyLabel="No gallery items match your filters."
           right={<ViewToggle mode={mode} onChange={setMode} />}
+          add={<AddButton />}
+          empty={{ icon: 'image', title: 'No photos yet', text: 'Add the first photo to show it in the Lookbook.' }}
           render={(rows) =>
             mode === 'cards'
               ? <ul className="mgrid">{rows.map((g) => <GalleryCard key={g.id} g={g} />)}</ul>
               : <ul className="alist">{rows.map((g) => <EditRow key={g.id} g={g} />)}</ul>
           }
         />
-      </div>
-      <div className="acrud__form">
-        <CreateForm />
-      </div>
     </div>
   );
 }
